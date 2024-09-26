@@ -1,0 +1,19 @@
+Package: MetaStats
+Title: PKG_TITLE
+Version: 0.0.0.9000
+Authors@R: 
+    person("Franco", "Suarez", , "suarezfranco@agro.unc.edu.ar", role = c("aut", "cre"))
+Description: PKG_DESC.
+License: MIT + file LICENSE
+Imports: 
+    config,
+    golem,
+    shiny
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Language: en-US
