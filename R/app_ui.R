@@ -59,20 +59,20 @@ app_ui <- function(request) {
         value = "navcociente",
         icon = icon("chart-line"),
         #hidden = T,
-        bslib::layout_sidebar(
-          sidebar = bslib::sidebar(
+        # bslib::layout_sidebar(
+          # sidebar = bslib::sidebar(
             mod_cociente_medias_ui("cociente_medias_1")
-          ),
-          bslib::layout_columns(
-          fillable = TRUE,
-          verbatimTextOutput("model_summary"),  # Mostrar el resumen del modelo
-          plotOutput("forest_plot")
-          )
+          # ),
+          # bslib::layout_columns(
+          # fillable = TRUE,
+          # verbatimTextOutput("model_summary"),  # Mostrar el resumen del modelo
+          # plotOutput("forest_plot")
+          # )
 
         )
       )
     )
-  )
+
 }
 
 #' Add external Resources to the Application

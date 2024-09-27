@@ -11,50 +11,65 @@
 mod_cociente_medias_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    selectInput(ns("author"),
-                "Seleccionar autor",
-                choices = NULL),
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        selectInput(ns("author"),
+                    "Seleccionar autor",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("año"),
-                "Seleccionar año",
-                choices = NULL),
+        selectInput(ns("año"),
+                    "Seleccionar año",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("N_e"),
-                "Seleccionar Ne (N de experimento)",
-                choices = NULL),
+        selectInput(ns("N_e"),
+                    "Seleccionar Ne (N de experimento)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("M_e"),
-                "Seleccionar Me (Media de experimento)",
-                choices = NULL),
+        selectInput(ns("M_e"),
+                    "Seleccionar Me (Media de experimento)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("S_e"),
-                "Seleccionar Se (Desvio estandar de experimento)",
-                choices = NULL),
+        selectInput(ns("S_e"),
+                    "Seleccionar Se (Desvio estandar de experimento)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("N_c"),
-                "Seleccionar Nc (N de control)",
-                choices = NULL),
+        selectInput(ns("N_c"),
+                    "Seleccionar Nc (N de control)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("M_c"),
-                "Seleccionar Mc (Media de control)",
-                choices = NULL),
+        selectInput(ns("M_c"),
+                    "Seleccionar Mc (Media de control)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("S_c"),
-                "Seleccionar Sc (Desvio estandar de control)",
-                choices = NULL),
+        selectInput(ns("S_c"),
+                    "Seleccionar Sc (Desvio estandar de control)",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    selectInput(ns("Sub"),
-                "Seleccionar sub-grupos",
-                choices = c("",NULL),
-                selected = ""),
+        selectInput(ns("Sub"),
+                    "Seleccionar sub-grupos",
+                    choices = c("",NULL),
+                    selected = ""),
 
-    actionButton(ns("run_model"), "Correr modelo"),
+        actionButton(ns("run_model"), "Correr modelo")
+      ),
+      bslib::card(
+        uiOutput(ns("tables")),
 
 
-    uiOutput(ns("model_summary")),
+        plotOutput(ns("forest_plot"))
+      )
+    )
 
-    uiOutput(ns("forest_plot"))
-  )
+
+    )
 
 
 
@@ -71,20 +86,23 @@ mod_cociente_medias_server <- function(id, file_data){
       df <- file_data()
       req(df)
 
-      updateSelectInput(session, "author", choices = names(df))
-      updateSelectInput(session, "año", choices = names(df))
-      updateSelectInput(session, "N_e", choices = names(df))
-      updateSelectInput(session, "M_e", choices = names(df))
-      updateSelectInput(session, "S_e", choices = names(df))
-      updateSelectInput(session, "N_c", choices = names(df))
-      updateSelectInput(session, "M_c", choices = names(df))
-      updateSelectInput(session, "S_c", choices = names(df))
+      var_num <- find_vars(df, is.numeric)
+
+
+      updateSelectInput(session, "author", choices = c("",names(df)))
+      updateSelectInput(session, "año", choices = c("",names(df)))
+      updateSelectInput(session, "N_e", choices = c("",var_num))
+      updateSelectInput(session, "M_e", choices = c("",var_num))
+      updateSelectInput(session, "S_e", choices = c("",var_num))
+      updateSelectInput(session, "N_c", choices = c("",var_num))
+      updateSelectInput(session, "M_c", choices = c("",var_num))
+      updateSelectInput(session, "S_c", choices = c("",var_num))
       updateSelectInput(session, "Sub", choices = c("",names(df)))
 
     })
 
     model <- eventReactive(input$run_model, {
-      df <- file_data
+      df <- file_data()
       req(df)
       req(input$N_e, input$M_e, input$S_e, input$N_c, input$M_c, input$S_c)
 
@@ -95,37 +113,311 @@ mod_cociente_medias_server <- function(id, file_data){
         Nc = df[[input$N_c]],
         Mc = df[[input$M_c]],
         Sc = df[[input$S_c]],
-        Subgroup = if (!is.null(input$Sub)) df[[input$Sub]] else NULL,
-        Author = if (!is.null(input$author)) df[[input$author]] else NULL
-      )
-      print(metaanalisis_df)
+        stringsAsFactors = FALSE)
+
+        if (!is.null(input$Sub)) metaanalisis_df$Subgroup = df[[input$Sub]]
+
+        if (!is.null(input$author) && input$author != "") {
+          if (!is.null(input$año) && input$año != "") {
+            metaanalisis_df$Author = paste(df[[input$author]], df[[input$año]], sep = ", ")  # Autor + año
+          } else {
+            metaanalisis_df$Author = df[[input$author]]  # Solo autor si año es NULL o vacío
+        }
+        }
+      # else {
+        #   NULL  # Si autor también está vacío
+        # }
+      # )
+
+
+      metaanalisis_df <- metaanalisis_df[
+        complete.cases(metaanalisis_df[, c("Ne", "Me", "Se", "Nc", "Mc", "Sc")]), ]
+
+      req(nrow(metaanalisis_df) > 0)
 
       m <- meta::metacont(
-        Ne = metaanalisis_df$Ne,
-        Me = metaanalisis_df$Me,
-        Se = metaanalisis_df$Se,
-        Nc = metaanalisis_df$Nc,
-        Mc = metaanalisis_df$Mc,
-        Sc = metaanalisis_df$Sc,
+        n.e = Ne,
+        mean.e = Me,
+        sd.e = Se,
+        n.c = Nc,
+        mean.c = Mc,
+        sd.c = Sc,
+        data = metaanalisis_df,
         sm = "ROM",  # Cociente de medias
-        studlab = metaanalisis_df$Author,  # Etiquetas de estudios (autores)
+        studlab = Author,  # Etiquetas de estudios (autores)
         comb.fixed = TRUE,  # Combinar con efectos fijos
         comb.random = FALSE,  # No usar efectos aleatorios en este ejemplo
         outclab = "Metaanálisis de Efectos Fijos para Cociente de Medias",
         method.tau = "DL",  # Método de DerSimonian-Laird para la heterogeneidad
         backtransf = TRUE,  # Transformación inversa para el cociente
-        subgroup = metaanalisis_df$Subgroup  # Subgrupo si existe
+        subgroup = if (!is.null(metaanalisis_df$Subgroup)) Subgroup else NULL  # Subgrupo si existe
       )
 
       return(m)
 
     })
 
-    output$model_summary <- renderPrint({
-      req(model())  # Requerimos que el modelo esté generado
-      summary(model())  # Mostrar el resumen del modelo ajustado
-      model_summary
+    # output$model_summary <- renderPrint({
+    #   req(model())  # Requerimos que el modelo esté generado
+    #   summary(model())
+    #   })# Mostrar el resumen del modelo ajustado
+
+    output$tables <-  renderUI({
+      req(model())
+      m <- model()
+
+        res1 <- data.frame(summary(m))
+        res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
+        res1$ROM=exp(res1$TE)
+        res1$ROM_se=exp(res1$seTE)
+        res1$lower_tr=exp(res1$lower)
+        res1$upper_tr=exp(res1$upper)
+        res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.common", "Ponderacion")
+        colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "ROM", "EE.ROM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
+        model_summary <- DT::datatable(res1,
+        options = list(
+          dom = "t",
+          paging = FALSE,
+          autoWidth = TRUE,
+          searching = FALSE
+        ),
+        style = 'bootstrap4'
+      )
+        model_summary <- DT::formatRound(
+          model_summary,
+          columns = c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C",
+                      "ROM", "EE.ROM", "LI[95%]", "LS[95%]","Z","Ponderación" , "Ponderación (%)"),
+          digits = 2
+        )
+
+        model_summary <- DT::formatRound(
+          model_summary,
+          columns = c("valor-p"),
+          digits = 5
+        )
+
+        m <- model()
+
+        res2 <- as.data.frame(cbind(m$k, sum(m$n.e), sum(m$n.c)))
+        colnames(res2)=c("Total de Estudios",
+                         "N Grupo Exterimental",
+                         "N Grupo Control")
+        res2 <- DT::datatable(res2,
+                              options = list(
+                                dom = "t",
+                                paging = FALSE,
+                                autoWidth = TRUE,
+                                searching = FALSE
+                              ),
+                              style = 'bootstrap4'
+        )
+
+        res3 <- as.data.frame(cbind(exp(m$TE.fixed), exp(m$lower.fixed), exp(m$upper.fixed), m$zval.fixed, round(m$pval.fixed, digits=5) ))
+        colnames(res3)=c("CM", "LI[95%]", "LS[95%]", "Z", "valor-p")
+
+        res3 <- DT::datatable(res3,
+                              options = list(
+                                dom = "t",
+                                paging = FALSE,
+                                autoWidth = TRUE,
+                                searching = FALSE
+                              ),
+                              style = 'bootstrap4')
+
+        res3 <- DT::formatRound(
+          res3,
+          columns = c("CM", "LI[95%]", "LS[95%]", "Z"),
+          digits = 2
+        )
+
+        res3 <- DT::formatRound(
+          res3,
+          columns = c("valor-p"),
+          digits = 5
+        )
+
+        res4=as.data.frame(cbind(m$tau^2, m$H, m$lower.H, m$upper.H, m$I2*100, m$lower.I2*100, m$upper.I2*100))
+        colnames(res4)=c("Tau2", "H", "LI.H[95%]", "LS.H[95%]", "I2(%)", "LI[95%].I2(%)", "LS[95%].I2(%)")
+
+        res4 <- DT::datatable(res4,
+                              options = list(
+                                dom = "t",
+                                paging = FALSE,
+                                autoWidth = TRUE,
+                                searching = FALSE
+                              ),
+                              style = 'bootstrap4')
+
+        res4 <- DT::formatRound(
+          res4,
+          columns = c("Tau2", "H", "LI.H[95%]", "LS.H[95%]",
+                      "I2(%)", "LI[95%].I2(%)", "LS[95%].I2(%)"),
+          digits = 2
+        )
+
+
+
+
+        res5=as.data.frame(cbind(m$Q, m$df.Q, m$pval.Q))
+        colnames(res5)=c("Q", "GL.Q", "valor-p")
+
+        res5 <- DT::datatable(res5,
+                              options = list(
+                                dom = "t",
+                                paging = FALSE,
+                                autoWidth = TRUE,
+                                searching = FALSE
+                              ),
+                              style = 'bootstrap4')
+
+        res5 <- DT::formatRound(
+          res5,
+          columns = c("Q", "GL.Q"),
+          digits = 2
+        )
+
+        res5 <- DT::formatRound(
+          res5,
+          columns = c("valor-p"),
+          digits = 5
+        )
+
+        res6=as.data.frame(m$method.tau)
+        colnames(res6)=c("Estimación de la varianza")
+        rownames(res6)="Método"
+
+        res6 <- DT::datatable(res6,
+                              options = list(
+                                dom = "t",
+                                paging = FALSE,
+                                autoWidth = TRUE,
+                                searching = FALSE
+                              ),
+                              style = 'bootstrap4')
+
+        if (!is.null(m$subgroup)){
+          res8 <-
+            data.frame(
+              levels(as.factor((m$subgroup))),
+              exp(m$TE.common.w),
+              exp(m$seTE.common.w),
+              exp(m$lower.common.w),
+              exp(m$upper.common.w),
+              m$w.common.w / sum(m$w.common.w) * 100
+            )
+          colnames(res8) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+
+          res8 <- DT::datatable(res8,
+                                options = list(
+                                  dom = "t",
+                                  paging = FALSE,
+                                  autoWidth = TRUE,
+                                  searching = FALSE
+                                ),
+                                style = 'bootstrap4')
+
+          res9 <-
+            data.frame(
+              levels(as.factor((m$subgroup))),
+              m$tau.w ^ 2,
+              m$Q.w,
+              m$I2.w * 100,
+              m$lower.I2.w,
+              m$upper.I2.w
+            )
+          colnames(res9) = c("Subgrupo",
+                             "Tau?",
+                             "Q",
+                             "I?[%]",
+                             "LI:I?[95%]",
+                             "LS:I?[95%]")
+
+          res9 <- DT::datatable(res9,
+                                options = list(
+                                  dom = "t",
+                                  paging = FALSE,
+                                  autoWidth = TRUE,
+                                  searching = FALSE
+                                ),
+                                style = 'bootstrap4')
+
+          res10 <- data.frame(
+            "Dentro Subgrupos",
+            m$Q.w.common,
+            m$df.Q.w,
+            m$pval.Q.w.common
+          )
+          colnames(res10) = c("Diferencias",
+                              "Q",
+                              "d.f",
+                              "p-value")
+
+
+          res11 <- data.frame(
+            "Entre Subgrupos",
+            m$Q.b.common,
+            m$df.Q.b,
+            m$pval.Q.b.common
+          )
+          colnames(res11) = c("Diferencias",
+                              "Q",
+                              "d.f",
+                              "p-value")
+
+
+
+          res12 <-data.frame(rbind(res11,res10))
+
+          res12 <- DT::datatable(res12,
+                                options = list(
+                                  dom = "t",
+                                  paging = FALSE,
+                                  autoWidth = TRUE,
+                                  searching = FALSE
+                                ),
+                                style = 'bootstrap4')
+
+
+
+          tagList(h3("Cociente de Medias con Efectos Fijos"),
+                  model_summary,
+                  h3("Cantidad de Estudios Combinados e Individuales"),
+                  res2,
+                  h3("Modelo de Efectos Fijos"),
+                  res3,
+                  h3("Cuantificaci?n de Heterogeneidad"),
+                  res4,
+                  h3("Prueba de Heterogeneidad"),
+                  res5,
+                  h3("Método"),
+                  res6,
+                  h3("Resultados por Subgrupos"),
+                  res8,
+                  h3("Cuantififacion Heterogeneidad por Subgrupo"),
+                  res9,
+                  h3("Prueba para la diferencias de subgrupos"),
+                  res12)
+        }
+
+        tagList(
+          h3("Cociente de Medias con Efectos Fijos"),
+          model_summary,
+          h3("Cantidad de Estudios Combinados e Individuales"),
+          res2,
+          h3("Modelo de Efectos Fijos"),
+          res3,
+          h3("Cuantificación de Heterogeneidad"),
+          res4,
+          h3("Prueba de Heterogeneidad"),
+          res5,
+          h3("Método"),
+          res6)
+
+
     })
+
+
+
 
     output$forest_plot <- renderPlot({
       req(model())  # Requerimos el modelo ajustado
@@ -133,6 +425,10 @@ mod_cociente_medias_server <- function(id, file_data){
     })
 
   })
+
+
+
+
 }
 
 ## To be copied in the UI
