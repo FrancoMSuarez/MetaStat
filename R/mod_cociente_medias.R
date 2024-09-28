@@ -58,6 +58,13 @@ mod_cociente_medias_ui <- function(id) {
                     choices = c("",NULL),
                     selected = ""),
 
+        selectInput(ns("model_type"),
+                    "Seleccionar Tipo de Modelo",
+                    choices = list(
+                      "Efectos Fijos" = "fixed",
+                      "Efectos Aleatorios" = "random"),
+                    selected = "fixed"),
+
         actionButton(ns("run_model"), "Correr modelo")
       ),
       bslib::card(
@@ -135,6 +142,13 @@ mod_cociente_medias_server <- function(id, file_data){
 
       req(nrow(metaanalisis_df) > 0)
 
+      # Eleccion de efectos
+      comb_fixed <- input$model_type == "fixed"
+      comb_random <- input$model_type == "random"
+
+
+
+
       m <- meta::metacont(
         n.e = Ne,
         mean.e = Me,
@@ -145,9 +159,9 @@ mod_cociente_medias_server <- function(id, file_data){
         data = metaanalisis_df,
         sm = "ROM",  # Cociente de medias
         studlab = Author,  # Etiquetas de estudios (autores)
-        comb.fixed = TRUE,  # Combinar con efectos fijos
-        comb.random = FALSE,  # No usar efectos aleatorios en este ejemplo
-        outclab = "Metaanálisis de Efectos Fijos para Cociente de Medias",
+        comb.fixed = comb_fixed,
+        comb.random = comb_random,
+        #outclab = "Metaanálisis de Efectos Fijos para Cociente de Medias",
         method.tau = "DL",  # Método de DerSimonian-Laird para la heterogeneidad
         backtransf = TRUE,  # Transformación inversa para el cociente
         subgroup = if (!is.null(metaanalisis_df$Subgroup)) Subgroup else NULL  # Subgrupo si existe
@@ -162,40 +176,124 @@ mod_cociente_medias_server <- function(id, file_data){
     #   summary(model())
     #   })# Mostrar el resumen del modelo ajustado
 
-    output$tables <-  renderUI({
-      req(model())
-      m <- model()
 
+    res1_data <- reactive({
+      m <- model()
+      req(m)
+      if (m$common == TRUE){
+      res1 <- data.frame(summary(m))
+      res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
+      res1$ROM=exp(res1$TE)
+      res1$ROM_se=exp(res1$seTE)
+      res1$lower_tr=exp(res1$lower)
+      res1$upper_tr=exp(res1$upper)
+      res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.common", "Ponderacion")
+      colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "ROM", "EE.ROM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
+      return(res1) }
+
+      if (m$common == FALSE){
         res1 <- data.frame(summary(m))
-        res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
+        res1$Ponderacion= res1$w.random/sum(res1$w.random)*100
         res1$ROM=exp(res1$TE)
         res1$ROM_se=exp(res1$seTE)
         res1$lower_tr=exp(res1$lower)
         res1$upper_tr=exp(res1$upper)
-        res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.common", "Ponderacion")
+        res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.random", "Ponderacion")
         colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "ROM", "EE.ROM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
-        model_summary <- DT::datatable(res1,
-        options = list(
-          dom = "t",
-          paging = FALSE,
-          autoWidth = TRUE,
-          searching = FALSE
-        ),
-        style = 'bootstrap4'
+        return(res1) }
+    })
+
+    res8_data <- reactive({
+      m <- model()
+      req(m)
+      if (m$common == TRUE){
+        res8dt <-
+          data.frame(
+            levels(as.factor((m$subgroup))),
+            exp(m$TE.common.w),
+            exp(m$seTE.common.w),
+            exp(m$lower.common.w),
+            exp(m$upper.common.w),
+            m$w.common.w / sum(m$w.common.w) * 100
+          )
+        colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+        return(res8dt)
+      }
+
+      if(m$common == FALSE){
+        res8dt <-
+          data.frame(
+            levels(as.factor((m$subgroup))),
+            exp(m$TE.random.w),
+            exp(m$seTE.random.w),
+            exp(m$lower.random.w),
+            exp(m$upper.random.w),
+            m$w.random.w / sum(m$w.random.w) * 100
+          )
+        colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+        return(res8dt)
+      }
+
+    })
+
+    output$tables <-  renderUI({
+      req(model())
+      m <- model()
+
+      model_summary <- DT::datatable(res1_data(),
+                                     rownames = F,
+                                     options = list(
+                                       dom = "t",
+                                       paging = FALSE,
+                                       autoWidth = TRUE,
+                                       searching = FALSE
+                                     ),
+                                     style = 'bootstrap5'
       )
-        model_summary <- DT::formatRound(
-          model_summary,
-          columns = c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C",
-                      "ROM", "EE.ROM", "LI[95%]", "LS[95%]","Z","Ponderación" , "Ponderación (%)"),
-          digits = 2
-        )
+      model_summary <- DT::formatRound(
+        model_summary,
+        columns = c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C",
+                    "ROM", "EE.ROM", "LI[95%]", "LS[95%]","Z","Ponderación" , "Ponderación (%)"),
+        digits = 2
+      )
 
-        model_summary <- DT::formatRound(
-          model_summary,
-          columns = c("valor-p"),
-          digits = 5
-        )
+      model_summary <- DT::formatRound(
+        model_summary,
+        columns = c("valor-p"),
+        digits = 5
+      )
 
+        # res1 <- data.frame(summary(m))
+        # res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
+        # res1$ROM=exp(res1$TE)
+        # res1$ROM_se=exp(res1$seTE)
+        # res1$lower_tr=exp(res1$lower)
+        # res1$upper_tr=exp(res1$upper)
+        # res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.common", "Ponderacion")
+        # colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "ROM", "EE.ROM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
+        # model_summary <- DT::datatable(res1,
+        #                                rownames = F,
+        #                                options = list(
+        #                                  dom = "t",
+        #                                  paging = FALSE,
+        #                                  autoWidth = TRUE,
+        #                                  searching = FALSE
+        #                                ),
+        #                                style = 'bootstrap5'
+        # )
+        # model_summary <- DT::formatRound(
+        #   model_summary,
+        #   columns = c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C",
+        #               "ROM", "EE.ROM", "LI[95%]", "LS[95%]","Z","Ponderación" , "Ponderación (%)"),
+        #   digits = 2
+        # )
+        #
+        # model_summary <- DT::formatRound(
+        #   model_summary,
+        #   columns = c("valor-p"),
+        #   digits = 5
+        # )
+        #
         m <- model()
 
         res2 <- as.data.frame(cbind(m$k, sum(m$n.e), sum(m$n.c)))
@@ -203,6 +301,7 @@ mod_cociente_medias_server <- function(id, file_data){
                          "N Grupo Exterimental",
                          "N Grupo Control")
         res2 <- DT::datatable(res2,
+                              rownames = F,
                               options = list(
                                 dom = "t",
                                 paging = FALSE,
@@ -216,6 +315,7 @@ mod_cociente_medias_server <- function(id, file_data){
         colnames(res3)=c("CM", "LI[95%]", "LS[95%]", "Z", "valor-p")
 
         res3 <- DT::datatable(res3,
+                              rownames = F,
                               options = list(
                                 dom = "t",
                                 paging = FALSE,
@@ -240,6 +340,7 @@ mod_cociente_medias_server <- function(id, file_data){
         colnames(res4)=c("Tau2", "H", "LI.H[95%]", "LS.H[95%]", "I2(%)", "LI[95%].I2(%)", "LS[95%].I2(%)")
 
         res4 <- DT::datatable(res4,
+                              rownames = F,
                               options = list(
                                 dom = "t",
                                 paging = FALSE,
@@ -262,6 +363,7 @@ mod_cociente_medias_server <- function(id, file_data){
         colnames(res5)=c("Q", "GL.Q", "valor-p")
 
         res5 <- DT::datatable(res5,
+                              rownames = F,
                               options = list(
                                 dom = "t",
                                 paging = FALSE,
@@ -287,6 +389,7 @@ mod_cociente_medias_server <- function(id, file_data){
         rownames(res6)="Método"
 
         res6 <- DT::datatable(res6,
+                              rownames = F,
                               options = list(
                                 dom = "t",
                                 paging = FALSE,
@@ -296,18 +399,9 @@ mod_cociente_medias_server <- function(id, file_data){
                               style = 'bootstrap4')
 
         if (!is.null(m$subgroup)){
-          res8 <-
-            data.frame(
-              levels(as.factor((m$subgroup))),
-              exp(m$TE.common.w),
-              exp(m$seTE.common.w),
-              exp(m$lower.common.w),
-              exp(m$upper.common.w),
-              m$w.common.w / sum(m$w.common.w) * 100
-            )
-          colnames(res8) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
 
-          res8 <- DT::datatable(res8,
+          res8 <- DT::datatable(res8_data(),
+                                rownames = F,
                                 options = list(
                                   dom = "t",
                                   paging = FALSE,
@@ -315,6 +409,25 @@ mod_cociente_medias_server <- function(id, file_data){
                                   searching = FALSE
                                 ),
                                 style = 'bootstrap4')
+          # res8dt <-
+          #   data.frame(
+          #     levels(as.factor((m$subgroup))),
+          #     exp(m$TE.common.w),
+          #     exp(m$seTE.common.w),
+          #     exp(m$lower.common.w),
+          #     exp(m$upper.common.w),
+          #     m$w.common.w / sum(m$w.common.w) * 100
+          #   )
+          # colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+          #
+          # res8 <- DT::datatable(res8dt,
+          #                       options = list(
+          #                         dom = "t",
+          #                         paging = FALSE,
+          #                         autoWidth = TRUE,
+          #                         searching = FALSE
+          #                       ),
+          #                       style = 'bootstrap4')
 
           res9 <-
             data.frame(
@@ -326,13 +439,14 @@ mod_cociente_medias_server <- function(id, file_data){
               m$upper.I2.w
             )
           colnames(res9) = c("Subgrupo",
-                             "Tau?",
+                             "Tau2",
                              "Q",
-                             "I?[%]",
-                             "LI:I?[95%]",
-                             "LS:I?[95%]")
+                             "I2[%]",
+                             "LI:I2[95%]",
+                             "LS:I2[95%]")
 
           res9 <- DT::datatable(res9,
+                                rownames = F,
                                 options = list(
                                   dom = "t",
                                   paging = FALSE,
@@ -369,6 +483,7 @@ mod_cociente_medias_server <- function(id, file_data){
           res12 <-data.frame(rbind(res11,res10))
 
           res12 <- DT::datatable(res12,
+                                 rownames = F,
                                 options = list(
                                   dom = "t",
                                   paging = FALSE,
@@ -379,54 +494,87 @@ mod_cociente_medias_server <- function(id, file_data){
 
 
 
-          tagList(h3("Cociente de Medias con Efectos Fijos"),
+          tagList(
+            h3(if(m$common == TRUE)
+              {"Tabla 1. Cociente de Medias con Efectos Fijos"}
+               else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
+              ),
+                  downloadButton(ns("download_res1"), "Descargar Tabla 1"),
                   model_summary,
-                  h3("Cantidad de Estudios Combinados e Individuales"),
+                  h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
                   res2,
-                  h3("Modelo de Efectos Fijos"),
+                  h3("Tabla 3. Modelo de Efectos Fijos"),
                   res3,
-                  h3("Cuantificaci?n de Heterogeneidad"),
+                  h3("Tabla 4. Cuantificación de Heterogeneidad"),
                   res4,
-                  h3("Prueba de Heterogeneidad"),
+                  h3("Tabla 5. Prueba de Heterogeneidad"),
                   res5,
-                  h3("Método"),
+                  h3("Tabla 6. Método"),
                   res6,
-                  h3("Resultados por Subgrupos"),
+                  h3("Tabla 7. Resultados por Subgrupos"),
+                  downloadButton(ns("download_res7"), "Descargar Tabla 7"),
                   res8,
-                  h3("Cuantififacion Heterogeneidad por Subgrupo"),
+                  h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
                   res9,
-                  h3("Prueba para la diferencias de subgrupos"),
+                  h3("Tabla 9. Prueba para la diferencias de subgrupos"),
                   res12)
         }
 
         tagList(
-          h3("Cociente de Medias con Efectos Fijos"),
+          h3(if(m$common == TRUE)
+          {"Tabla 1. Cociente de Medias con Efectos Fijos"}
+          else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
+          ),
+          downloadButton(ns("download_res1"), "Descargar Tabla 1"),
           model_summary,
-          h3("Cantidad de Estudios Combinados e Individuales"),
+          h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
           res2,
-          h3("Modelo de Efectos Fijos"),
+          h3("Tabla 3. Modelo de Efectos Fijos"),
           res3,
-          h3("Cuantificación de Heterogeneidad"),
+          h3("Tabla 4. Cuantificación de Heterogeneidad"),
           res4,
-          h3("Prueba de Heterogeneidad"),
+          h3("Tabla 5. Prueba de Heterogeneidad"),
           res5,
-          h3("Método"),
+          h3("Tabla 6. Método"),
           res6)
 
 
     })
-
-
-
 
     output$forest_plot <- renderPlot({
       req(model())  # Requerimos el modelo ajustado
       meta::forest(model())  # Gráfico forest para el metaanálisis
     })
 
+    # Descargar Tabla 1
+    output$download_res1 <- downloadHandler(
+      filename = function() {
+        paste("tabla_cociente_medias_", Sys.Date(), ".csv", sep = "")
+      },
+      content = function(file) {
+        res1 <- res1_data()
+        write.csv(res1, file, row.names = FALSE)
+      }
+    )
+
+
+    # Descargar Tabla 7
+    output$download_res7 <- downloadHandler(
+      filename = function() {
+        paste("tabla_resultados_grupos", Sys.Date(), ".csv", sep = "")
+      },
+      content = function(file) {
+        res8 <- res8_data()
+        write.csv(res8, file, row.names = FALSE)
+      }
+    )
+
+
+
+
+
+
   })
-
-
 
 
 }

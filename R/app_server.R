@@ -14,11 +14,13 @@ app_server <- function(input, output, session) {
   # ##tabs_added <- reactiveVal(FALSE)
   shinyjs::hide(selector = '#navbar li a[data-value="navdata"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navmodel"]')
+  shinyjs::hide(selector = '#navbar li a[data-value="navcociente"]')
 
   observeEvent(selected_page(), {
     if (selected_page() == "continuos" ) {
       shinyjs::show(selector = '#navbar li a[data-value="navdata"]')
       shinyjs::show(selector = '#navbar li a[data-value="navmodel"]')
+      shinyjs::show(selector = '#navbar li a[data-value="navcociente"]')
 
       updateTabsetPanel(session, "navbar", selected = "navdata")
 
