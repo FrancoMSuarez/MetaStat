@@ -65,18 +65,30 @@ mod_cociente_medias_ui <- function(id) {
                       "Efectos Aleatorios" = "random"),
                     selected = "fixed"),
 
-        actionButton(ns("run_model"), "Correr modelo")
+        selectInput(ns("method_tau"), "Seleccionar método de estimación de heterogeneidad",
+                    choices = list("DerSimonian-Laird (DL)" = "DL",
+                                   "Paule-Mandel (PM)" = "PM",
+                                   "Restricted maximum-likelihood (REML)" = "REML",
+                                   "Maximum-likelihood (ML)" = "ML",
+                                   "Hunter-Schmidt (HS)" = "HS",
+                                   "Sidik-Jonkman (SJ)" = "SJ",
+                                   "Hedges (HE)" = "HE",
+                                   "Empirical Bayes (EB)" = "EB"),
+                    selected = "DL"),
+
+        actionButton(ns("run_model"), "Correr modelo",
+                     class = "btn-primary")
       ),
       bslib::card(
         uiOutput(ns("tables")),
 
 
-        plotOutput(ns("forest_plot"))
+        #plotOutput(ns("forest_plot"))
       )
     )
 
 
-    )
+  )
 
 
 
@@ -146,9 +158,6 @@ mod_cociente_medias_server <- function(id, file_data){
       comb_fixed <- input$model_type == "fixed"
       comb_random <- input$model_type == "random"
 
-
-
-
       m <- meta::metacont(
         n.e = Ne,
         mean.e = Me,
@@ -162,20 +171,15 @@ mod_cociente_medias_server <- function(id, file_data){
         comb.fixed = comb_fixed,
         comb.random = comb_random,
         #outclab = "Metaanálisis de Efectos Fijos para Cociente de Medias",
-        method.tau = "DL",  # Método de DerSimonian-Laird para la heterogeneidad
+        method.tau = input$method_tau,
         backtransf = TRUE,  # Transformación inversa para el cociente
-        subgroup = if (!is.null(metaanalisis_df$Subgroup)) Subgroup else NULL  # Subgrupo si existe
+        subgroup = if (!is.null(metaanalisis_df$Subgroup) &&
+                       length(unique(metaanalisis_df$Subgroup)) > 1) metaanalisis_df$Subgroup else NULL  # Subgrupo si existe
       )
 
       return(m)
 
     })
-
-    # output$model_summary <- renderPrint({
-    #   req(model())  # Requerimos que el modelo esté generado
-    #   summary(model())
-    #   })# Mostrar el resumen del modelo ajustado
-
 
     res1_data <- reactive({
       m <- model()
@@ -216,7 +220,7 @@ mod_cociente_medias_server <- function(id, file_data){
             exp(m$upper.common.w),
             m$w.common.w / sum(m$w.common.w) * 100
           )
-        colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+        colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
       }
 
@@ -263,37 +267,6 @@ mod_cociente_medias_server <- function(id, file_data){
         digits = 5
       )
 
-        # res1 <- data.frame(summary(m))
-        # res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
-        # res1$ROM=exp(res1$TE)
-        # res1$ROM_se=exp(res1$seTE)
-        # res1$lower_tr=exp(res1$lower)
-        # res1$upper_tr=exp(res1$upper)
-        # res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","ROM","ROM_se","lower_tr","upper_tr","zval","pval","w.common", "Ponderacion")
-        # colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "ROM", "EE.ROM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
-        # model_summary <- DT::datatable(res1,
-        #                                rownames = F,
-        #                                options = list(
-        #                                  dom = "t",
-        #                                  paging = FALSE,
-        #                                  autoWidth = TRUE,
-        #                                  searching = FALSE
-        #                                ),
-        #                                style = 'bootstrap5'
-        # )
-        # model_summary <- DT::formatRound(
-        #   model_summary,
-        #   columns = c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C",
-        #               "ROM", "EE.ROM", "LI[95%]", "LS[95%]","Z","Ponderación" , "Ponderación (%)"),
-        #   digits = 2
-        # )
-        #
-        # model_summary <- DT::formatRound(
-        #   model_summary,
-        #   columns = c("valor-p"),
-        #   digits = 5
-        # )
-        #
         m <- model()
 
         res2 <- as.data.frame(cbind(m$k, sum(m$n.e), sum(m$n.c)))
@@ -409,25 +382,12 @@ mod_cociente_medias_server <- function(id, file_data){
                                   searching = FALSE
                                 ),
                                 style = 'bootstrap4')
-          # res8dt <-
-          #   data.frame(
-          #     levels(as.factor((m$subgroup))),
-          #     exp(m$TE.common.w),
-          #     exp(m$seTE.common.w),
-          #     exp(m$lower.common.w),
-          #     exp(m$upper.common.w),
-          #     m$w.common.w / sum(m$w.common.w) * 100
-          #   )
-          # colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
-          #
-          # res8 <- DT::datatable(res8dt,
-          #                       options = list(
-          #                         dom = "t",
-          #                         paging = FALSE,
-          #                         autoWidth = TRUE,
-          #                         searching = FALSE
-          #                       ),
-          #                       style = 'bootstrap4')
+
+          res8 <- DT::formatRound(
+            res8,
+            columns = c("Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación"),
+            digits = 2
+          )
 
           res9 <-
             data.frame(
@@ -455,12 +415,24 @@ mod_cociente_medias_server <- function(id, file_data){
                                 ),
                                 style = 'bootstrap4')
 
+          res9 <- DT::formatRound(
+            res9,
+            columns = c("Tau2",
+                        "Q",
+                        "I2[%]",
+                        "LI:I2[95%]",
+                        "LS:I2[95%]"),
+            digits = 2
+          )
+
+
           res10 <- data.frame(
             "Dentro Subgrupos",
             m$Q.w.common,
             m$df.Q.w,
             m$pval.Q.w.common
           )
+
           colnames(res10) = c("Diferencias",
                               "Q",
                               "d.f",
@@ -473,6 +445,7 @@ mod_cociente_medias_server <- function(id, file_data){
             m$df.Q.b,
             m$pval.Q.b.common
           )
+
           colnames(res11) = c("Diferencias",
                               "Q",
                               "d.f",
@@ -491,6 +464,19 @@ mod_cociente_medias_server <- function(id, file_data){
                                   searching = FALSE
                                 ),
                                 style = 'bootstrap4')
+
+          res12 <- DT::formatRound(
+            res12,
+            columns = c("Q",
+                        "d.f"),
+            digits = 2
+          )
+
+          res12 <- DT::formatRound(
+            res12,
+            columns = c("p.value"),
+            digits = 5
+          )
 
 
 
@@ -518,8 +504,7 @@ mod_cociente_medias_server <- function(id, file_data){
                   res9,
                   h3("Tabla 9. Prueba para la diferencias de subgrupos"),
                   res12)
-        }
-
+        } else {
         tagList(
           h3(if(m$common == TRUE)
           {"Tabla 1. Cociente de Medias con Efectos Fijos"}
@@ -537,6 +522,7 @@ mod_cociente_medias_server <- function(id, file_data){
           res5,
           h3("Tabla 6. Método"),
           res6)
+        }
 
 
     })
@@ -571,7 +557,7 @@ mod_cociente_medias_server <- function(id, file_data){
 
 
 
-
+return(model)
 
 
   })

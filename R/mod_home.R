@@ -11,16 +11,28 @@ mod_home_ui <- function(id) {
   ns <- NS(id)
   tagList(
     div(
-      h1(style = "text-align: center",
-       'Bienvenidos a MetaStat')),
+      id = "content",
+      class = "app-header",
+      style = "display: flex; flex-direction: column; align-items: center;",
+      h1(style = "text-align: center; margin-bottom: 10px;",
+       'Bienvenidos a MetaStat'),
+      img(
+        id = "logo",
+        class = "ribbon",
+        height = "150",
+        width = 'auto',
+        alt = '',
+        src="www/Imagen1.png"
+      )
+    ),
 
     div(
-      style = "text-align: center;",
+      style = "text-align: center; margin-top: 20px;",
       actionButton(
         ns("startContinuos"),
         "Datos Continuos",
         icon = icon("play-circle"),
-        class = "btn-success",
+        class = "btn-primary",
         style = 'text-align: center; font-size:110%;'
       ),
 
@@ -28,7 +40,7 @@ mod_home_ui <- function(id) {
         ns("startDiscretos"),
         "Datos Discretos",
         icon = icon("play-circle"),
-        class = "btn-primary",
+        class = "btn-secondary",
         style = 'text-align: center; font-size:110%;'
       )
       )

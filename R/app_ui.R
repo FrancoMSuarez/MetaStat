@@ -14,6 +14,7 @@ app_ui <- function(request) {
     bslib::page_navbar(
       title = "MetaStats",
       id = "navbar",
+      theme = bslib::bs_theme(bootswatch = "minty"),
 
       # Inicio
       bslib::nav_panel(
@@ -43,15 +44,15 @@ app_ui <- function(request) {
         )
       ),
 
-      bslib::nav_panel(
-        title = "Modelo",
-        value = "navmodel",
-        icon = icon("chart-line"),
-        #hidden = T,
-        fluidPage(
-          h3("mdodsf")
-        )
-      ),
+      # bslib::nav_panel(
+      #   title = "Modelo",
+      #   value = "navmodel",
+      #   icon = icon("chart-line"),
+      #   #hidden = T,
+      #   fluidPage(
+      #     h3("mdodsf")
+      #   )
+      # ),
 
       # Cociente de Medias
       bslib::nav_panel(
@@ -61,7 +62,7 @@ app_ui <- function(request) {
         #hidden = T,
         # bslib::layout_sidebar(
           # sidebar = bslib::sidebar(
-            mod_cociente_medias_ui("cociente_medias_1")
+        mod_cociente_medias_ui("cociente_medias_1")
           # ),
           # bslib::layout_columns(
           # fillable = TRUE,
@@ -69,7 +70,14 @@ app_ui <- function(request) {
           # plotOutput("forest_plot")
           # )
 
-        )
+        ),
+
+      bslib::nav_panel(
+        title = "Forestplot",
+        value = "navforest",
+        icon = icon("tree"),
+        mod_forestplot_ui("forestplot_1")
+      )
       )
     )
 
