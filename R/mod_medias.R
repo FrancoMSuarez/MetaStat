@@ -1,4 +1,4 @@
-#' correlaciones UI Function
+#' medias UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_correlaciones_ui <- function(id) {
+mod_medias_ui <- function(id) {
   ns <- NS(id)
     tagList(
       bslib::layout_sidebar(
@@ -22,13 +22,18 @@ mod_correlaciones_ui <- function(id) {
                       choices = c("",NULL),
                       selected = ""),
 
-          selectInput(ns("r"),
-                      "Seleccionar r",
+          selectInput(ns("N"),
+                      "Seleccionar N",
                       choices = c("",NULL),
                       selected = ""),
 
-          selectInput(ns("n"),
-                      "Seleccionar n",
+          selectInput(ns("Media"),
+                      "Seleccionar Media",
+                      choices = c("",NULL),
+                      selected = ""),
+
+          selectInput(ns("Se"),
+                      "Seleccionar Desvio estandar",
                       choices = c("",NULL),
                       selected = ""),
 
@@ -60,16 +65,17 @@ mod_correlaciones_ui <- function(id) {
         ),
         bslib::card(
           uiOutput(ns("tables")),
-        )
-      )
 
-  )
+        )
+
+      )
+    )
 }
 
-#' correlaciones Server Functions
+#' medias Server Functions
 #'
 #' @noRd
-mod_correlaciones_server <- function(id, file_data){
+mod_medias_server <- function(id, file_data){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
@@ -82,8 +88,9 @@ mod_correlaciones_server <- function(id, file_data){
 
       updateSelectInput(session, "author", choices = c("",names(df)))
       updateSelectInput(session, "año", choices = c("",names(df)))
-      updateSelectInput(session, "r", choices = c("",var_num))
-      updateSelectInput(session, "n", choices = c("",var_num))
+      updateSelectInput(session, "N", choices = c("",var_num))
+      updateSelectInput(session, "Media", choices = c("",var_num))
+      updateSelectInput(session, "Se", choices = c("",var_num))
       updateSelectInput(session, "Sub", choices = c("",names(df)))
 
     })
@@ -91,13 +98,13 @@ mod_correlaciones_server <- function(id, file_data){
     model <- eventReactive(input$run_model, {
       df <- file_data()
       req(df)
-      req(input$r, input$n)
+      req(input$N, input$Media, input$Se)
 
       metaanalisis_df <- data.frame(
-        r = df[[input$r]],
-        n = df[[input$n]],
+        N = df[[input$N]],
+        Media = df[[input$Media]],
+        Se = df[[input$Se]],
         stringsAsFactors = FALSE)
-
 
       if (!is.null(input$Sub)) metaanalisis_df$Subgroup = df[[input$Sub]]
 
@@ -108,10 +115,14 @@ mod_correlaciones_server <- function(id, file_data){
           metaanalisis_df$Author = df[[input$author]]  # Solo autor si año es NULL o vacío
         }
       }
+      # else {
+      #   NULL  # Si autor también está vacío
+      # }
+      # )
 
 
       metaanalisis_df <- metaanalisis_df[
-        complete.cases(metaanalisis_df[, c("r", "n")]), ]
+        complete.cases(metaanalisis_df[, c("N", "Media", "Se")]), ]
 
       req(nrow(metaanalisis_df) > 0)
 
@@ -119,12 +130,13 @@ mod_correlaciones_server <- function(id, file_data){
       comb_fixed <- input$model_type == "fixed"
       comb_random <- input$model_type == "random"
 
-      m <- meta::metacor(
-        cor = r,
-        n = n,
+      m <- meta::metamean(
+        n = N,
+        mean = Media,
+        sd = Se,
         data = metaanalisis_df,
-        sm = "COR",  # Cociente de medias
-        studlab = Author,  # Etiquetas de estudios (autores)
+        sm = "MRAW",
+        studlab = Author,
         comb.fixed = comb_fixed,
         comb.random = comb_random,
         #outclab = "Metaanálisis de Efectos Fijos para Cociente de Medias",
@@ -144,15 +156,19 @@ mod_correlaciones_server <- function(id, file_data){
       if (m$common == TRUE){
         res1 <- data.frame(summary(m))
         res1$Ponderacion= res1$w.common/sum(res1$w.common)*100
-        res1 <- dplyr::select( res1,"studlab","n","cor","lower","upper","zval","pval","w.common", "Ponderacion")
-        colnames(res1)=c("Estudio", "n", "Cor", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
+        res1 <- dplyr::select( res1, "n", "mean","sd","studlab", "TE","seTE","lower","upper","w.common", "Ponderacion")
+        colnames(res1)=c("N", "Media", "DE", "Estudio", "Efecto estimado", "E.E", "LI[95%]", "LS[95%]", "Ponderación" , "Ponderación (%)")
         return(res1) }
 
       if (m$common == FALSE){
         res1 <- data.frame(summary(m))
         res1$Ponderacion= res1$w.random/sum(res1$w.random)*100
-        res1 <- dplyr::select( res1,"studlab","n","cor","lower","upper","zval","pval","w.random", "Ponderacion")
-        colnames(res1)=c("Estudio", "n", "Cor", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
+        res1$ROM=exp(res1$TE)
+        res1$ROM_se=exp(res1$seTE)
+        res1$lower_tr=exp(res1$lower)
+        res1$upper_tr=exp(res1$upper)
+        res1 <- dplyr::select(res1, "n", "mean","sd","studlab", "TE","seTE","lower","upper","w.random", "Ponderacion")
+        colnames(res1)=c("N", "Media", "DE", "Estudio", "Efecto estimado", "E.E", "LI[95%]", "LS[95%]", "Ponderación" , "Ponderación (%)")
         return(res1) }
     })
 
@@ -189,20 +205,22 @@ mod_correlaciones_server <- function(id, file_data){
 
     })
 
+
     res_3_data <- reactive({
       m <- model()
       req(m)
       if(m$common == TRUE){
         res3 <- as.data.frame(cbind(m$TE.fixed, m$lower.fixed, m$upper.fixed, m$zval.fixed, round(m$pval.fixed, digits=5) ))
-        colnames(res3)=c("Cor", "LI[95%]", "LS[95%]", "Z", "valor-p")
+        colnames(res3)=c("Media", "LI[95%]", "LS[95%]", "Z", "valor-p")
         return(res3)
       }
       if(m$common == FALSE){
         res3 <- as.data.frame(cbind(m$TE.random, m$lower.random, m$upper.random, m$zval.random, round(m$pval.random, digits=5) ))
-        colnames(res3)=c("Cor", "LI[95%]", "LS[95%]", "Z", "valor-p")
+        colnames(res3)=c("Media", "LI[95%]", "LS[95%]", "Z", "valor-p")
         return(res3)
       }
     })
+
 
     output$tables <-  renderUI({
       req(model())
@@ -220,19 +238,14 @@ mod_correlaciones_server <- function(id, file_data){
       )
       model_summary <- DT::formatRound(
         model_summary,
-        columns = c("n", "Cor", "LI[95%]", "LS[95%]", "Z", "Ponderación" , "Ponderación (%)"),
+        columns = c("N", "Media", "DE", "Efecto estimado", "E.E", "LI[95%]", "LS[95%]","Ponderación" , "Ponderación (%)"),
         digits = 2
       )
 
-      model_summary <- DT::formatRound(
-        model_summary,
-        columns = c("valor-p"),
-        digits = 5
-      )
 
       m <- model()
 
-      res2 <- as.data.frame(m$k)
+      res2 <- as.data.frame(cbind(m$k, sum(m$n.e), sum(m$n.c)))
       colnames(res2)=c("Total de Estudios")
       res2 <- DT::datatable(res2,
                             rownames = F,
@@ -259,7 +272,7 @@ mod_correlaciones_server <- function(id, file_data){
 
       res3 <- DT::formatRound(
         res3,
-        columns = c("Cor", "LI[95%]", "LS[95%]", "Z"),
+        columns = c("Media", "LI[95%]", "LS[95%]", "Z"),
         digits = 2
       )
 
@@ -442,17 +455,16 @@ mod_correlaciones_server <- function(id, file_data){
 
         tagList(
           h3(if(m$common == TRUE)
-          {"Tabla 1. Correlaciones con Efectos Fijos"}
-          else {"Tabla 1. Correlaciones con Efectos Aleatorios"}
+          {"Tabla 1. Estimación de Medias con Efectos Fijos"}
+          else {"Tabla 1. Estimación de Medias con Efectos Aleatorios"}
           ),
           downloadButton(ns("download_res1"), "Descargar Tabla 1"),
           model_summary,
           h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
           res2,
-
           h3(if(m$common == T)
-            {"Tabla 3. Modelo de Efectos Fijos"}
-            else {"Tabla 3. Modelo de Efectos Aleatorios"}),
+          {"Tabla 3. Modelo de Efectos Fijos"}
+          else {"Tabla 3. Modelo de Efectos Aleatorios"}),
           res3,
           h3("Tabla 4. Cuantificación de Heterogeneidad"),
           res4,
@@ -470,8 +482,8 @@ mod_correlaciones_server <- function(id, file_data){
       } else {
         tagList(
           h3(if(m$common == TRUE)
-          {"Tabla 1. Correlaciones con Efectos Fijos"}
-          else {"Tabla 1. Correlaciones con Efectos Aleatorios"}
+          {"Tabla 1. Estimación de Medias con Efectos Fijos"}
+          else {"Tabla 1. Estimación de Medias con Efectos Aleatorios"}
           ),
           downloadButton(ns("download_res1"), "Descargar Tabla 1"),
           model_summary,
@@ -500,7 +512,7 @@ mod_correlaciones_server <- function(id, file_data){
     # Descargar Tabla 1
     output$download_res1 <- downloadHandler(
       filename = function() {
-        paste("tabla_correlaciones_", Sys.Date(), ".csv", sep = "")
+        paste("tabla_medias_", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
         res1 <- res1_data()
@@ -524,11 +536,12 @@ mod_correlaciones_server <- function(id, file_data){
 
     return(model)
 
+
   })
 }
 
 ## To be copied in the UI
-# mod_correlaciones_ui("correlaciones_1")
+# mod_medias_ui("medias_1")
 
 ## To be copied in the server
-# mod_correlaciones_server("correlaciones_1")
+# mod_medias_server("medias_1")

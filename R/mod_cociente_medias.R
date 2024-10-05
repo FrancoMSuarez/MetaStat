@@ -234,7 +234,7 @@ mod_cociente_medias_server <- function(id, file_data){
             exp(m$upper.random.w),
             m$w.random.w / sum(m$w.random.w) * 100
           )
-        colnames(res8dt) = c("subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
+        colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
       }
 
@@ -251,7 +251,7 @@ mod_cociente_medias_server <- function(id, file_data){
       }
       if(m$common == FALSE){
         res3 <- as.data.frame(cbind(exp(m$TE.random), exp(m$lower.random), exp(m$upper.random), m$zval.random, round(m$pval.random, digits=5) ))
-        colnames(res3)=c("Cor", "LI[95%]", "LS[95%]", "Z", "valor-p")
+        colnames(res3)=c("CM", "LI[95%]", "LS[95%]", "Z", "valor-p")
         return(res3)
       }
     })
@@ -508,7 +508,7 @@ mod_cociente_medias_server <- function(id, file_data){
             h3(if(m$common == T)
             {"Tabla 3. Modelo de Efectos Fijos"}
             else {"Tabla 3. Modelo de Efectos Aleatorios"}),
-            res3,,
+            res3,
             h3("Tabla 4. Cuantificación de Heterogeneidad"),
             res4,
             h3("Tabla 5. Prueba de Heterogeneidad"),
@@ -535,7 +535,7 @@ mod_cociente_medias_server <- function(id, file_data){
             h3(if(m$common == T)
             {"Tabla 3. Modelo de Efectos Fijos"}
             else {"Tabla 3. Modelo de Efectos Aleatorios"}),
-            res3,,
+            res3,
             h3("Tabla 4. Cuantificación de Heterogeneidad"),
             res4,
             h3("Tabla 5. Prueba de Heterogeneidad"),

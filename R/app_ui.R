@@ -67,17 +67,39 @@ app_ui <- function(request) {
       bslib::nav_panel(
         title = "Correlaciones",
         value = "navcorrelaciones",
-        icon = icon("chart"),
+        icon = icon("chart-line"),
         mod_correlaciones_ui("correlaciones_1")
       ),
 
+      bslib::nav_panel(
+        title = "Diferencias de medias",
+        value = "navdif_medias",
+        icon = icon("chart-line"),
+        mod_difdemedias_ui("difdemedias_1")
+      ),
+
+      bslib::nav_panel(
+        title = "Diferencias de medias estandarizadas",
+        value = "navdif_medias_st",
+        icon = icon("chart-line"),
+        mod_dm_estandar_ui("dm_estandar_1")
+      ),
+
+      bslib::nav_panel(
+        title = "Media",
+        value = "navmedia",
+        icon = icon("chart-line"),
+        mod_medias_ui("medias_1")
+      ),
 
       bslib::nav_panel(
         title = "Forestplot",
         value = "navforest",
         icon = icon("tree"),
         mod_forestplot_ui("forestplot_1")
-      )
+      ),
+
+
       )
     )
 
