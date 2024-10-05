@@ -63,5 +63,5 @@ mod_forestplot_server <- function(id, model){
 
   })
 }
-m$sm
+
 

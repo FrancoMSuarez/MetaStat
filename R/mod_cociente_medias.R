@@ -240,6 +240,23 @@ mod_cociente_medias_server <- function(id, file_data){
 
     })
 
+
+    res_3_data <- reactive({
+      m <- model()
+      req(m)
+      if(m$common == TRUE){
+        res3 <- as.data.frame(cbind(exp(m$TE.fixed), exp(m$lower.fixed), exp(m$upper.fixed), m$zval.fixed, round(m$pval.fixed, digits=5) ))
+        colnames(res3)=c("CM", "LI[95%]", "LS[95%]", "Z", "valor-p")
+        return(res3)
+      }
+      if(m$common == FALSE){
+        res3 <- as.data.frame(cbind(exp(m$TE.random), exp(m$lower.random), exp(m$upper.random), m$zval.random, round(m$pval.random, digits=5) ))
+        colnames(res3)=c("Cor", "LI[95%]", "LS[95%]", "Z", "valor-p")
+        return(res3)
+      }
+    })
+
+
     output$tables <-  renderUI({
       req(model())
       m <- model()
@@ -284,10 +301,9 @@ mod_cociente_medias_server <- function(id, file_data){
                               style = 'bootstrap4'
         )
 
-        res3 <- as.data.frame(cbind(exp(m$TE.fixed), exp(m$lower.fixed), exp(m$upper.fixed), m$zval.fixed, round(m$pval.fixed, digits=5) ))
-        colnames(res3)=c("CM", "LI[95%]", "LS[95%]", "Z", "valor-p")
 
-        res3 <- DT::datatable(res3,
+
+        res3 <- DT::datatable(res_3_data(),
                               rownames = F,
                               options = list(
                                 dom = "t",
@@ -482,46 +498,50 @@ mod_cociente_medias_server <- function(id, file_data){
 
           tagList(
             h3(if(m$common == TRUE)
-              {"Tabla 1. Cociente de Medias con Efectos Fijos"}
-               else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
-              ),
-                  downloadButton(ns("download_res1"), "Descargar Tabla 1"),
-                  model_summary,
-                  h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
-                  res2,
-                  h3("Tabla 3. Modelo de Efectos Fijos"),
-                  res3,
-                  h3("Tabla 4. Cuantificación de Heterogeneidad"),
-                  res4,
-                  h3("Tabla 5. Prueba de Heterogeneidad"),
-                  res5,
-                  h3("Tabla 6. Método"),
-                  res6,
-                  h3("Tabla 7. Resultados por Subgrupos"),
-                  downloadButton(ns("download_res7"), "Descargar Tabla 7"),
-                  res8,
-                  h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
-                  res9,
-                  h3("Tabla 9. Prueba para la diferencias de subgrupos"),
-                  res12)
+            {"Tabla 1. Cociente de Medias con Efectos Fijos"}
+            else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
+            ),
+            downloadButton(ns("download_res1"), "Descargar Tabla 1"),
+            model_summary,
+            h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
+            res2,
+            h3(if(m$common == T)
+            {"Tabla 3. Modelo de Efectos Fijos"}
+            else {"Tabla 3. Modelo de Efectos Aleatorios"}),
+            res3,,
+            h3("Tabla 4. Cuantificación de Heterogeneidad"),
+            res4,
+            h3("Tabla 5. Prueba de Heterogeneidad"),
+            res5,
+            h3("Tabla 6. Método"),
+            res6,
+            h3("Tabla 7. Resultados por Subgrupos"),
+            downloadButton(ns("download_res7"), "Descargar Tabla 7"),
+            res8,
+            h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
+            res9,
+            h3("Tabla 9. Prueba para la diferencias de subgrupos"),
+            res12)
         } else {
-        tagList(
-          h3(if(m$common == TRUE)
-          {"Tabla 1. Cociente de Medias con Efectos Fijos"}
-          else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
-          ),
-          downloadButton(ns("download_res1"), "Descargar Tabla 1"),
-          model_summary,
-          h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
-          res2,
-          h3("Tabla 3. Modelo de Efectos Fijos"),
-          res3,
-          h3("Tabla 4. Cuantificación de Heterogeneidad"),
-          res4,
-          h3("Tabla 5. Prueba de Heterogeneidad"),
-          res5,
-          h3("Tabla 6. Método"),
-          res6)
+          tagList(
+            h3(if(m$common == TRUE)
+            {"Tabla 1. Cociente de Medias con Efectos Fijos"}
+            else {"Tabla 1. Cociente de Medias con Efectos Aleatorios"}
+            ),
+            downloadButton(ns("download_res1"), "Descargar Tabla 1"),
+            model_summary,
+            h3("Tabla 2. Cantidad de Estudios Combinados e Individuales"),
+            res2,
+            h3(if(m$common == T)
+            {"Tabla 3. Modelo de Efectos Fijos"}
+            else {"Tabla 3. Modelo de Efectos Aleatorios"}),
+            res3,,
+            h3("Tabla 4. Cuantificación de Heterogeneidad"),
+            res4,
+            h3("Tabla 5. Prueba de Heterogeneidad"),
+            res5,
+            h3("Tabla 6. Método"),
+            res6)
         }
 
 

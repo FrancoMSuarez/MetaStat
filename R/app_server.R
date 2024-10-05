@@ -16,6 +16,8 @@ app_server <- function(input, output, session) {
   # shinyjs::hide(selector = '#navbar li a[data-value="navmodel"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navcociente"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navforest"]')
+  shinyjs::hide(selector = '#navbar li a[data-value="navcorrelaciones"]')
+
 
   observeEvent(selected_page(), {
     if (selected_page() == "continuos" ) {
@@ -23,6 +25,7 @@ app_server <- function(input, output, session) {
       # shinyjs::show(selector = '#navbar li a[data-value="navmodel"]')
       shinyjs::show(selector = '#navbar li a[data-value="navcociente"]')
       shinyjs::show(selector = '#navbar li a[data-value="navforest"]')
+      shinyjs::show(selector = '#navbar li a[data-value="navcorrelaciones"]')
 
       updateTabsetPanel(session, "navbar", selected = "navdata")
 
@@ -38,11 +41,13 @@ app_server <- function(input, output, session) {
 
   file_data <- mod_fileInput_server("fileInput_1")
 
-  output$file_preview <- renderTable({
-    head(file_data(), 10)
+  output$file_preview <- DT::renderDataTable({
+    req(file_data())
+    DT::datatable(file_data())
   })
 
   model <- mod_cociente_medias_server("cociente_medias_1",file_data)
+  model <- mod_correlaciones_server("correlaciones_1", file_data)
 
   mod_forestplot_server("forestplot_1", model)
 

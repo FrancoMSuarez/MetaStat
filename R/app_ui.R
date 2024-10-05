@@ -39,7 +39,7 @@ app_ui <- function(request) {
           ),
           bslib::layout_columns(
             fillable = TRUE,
-            tableOutput("file_preview")
+            DT::dataTableOutput("file_preview")
           )
         )
       ),
@@ -59,18 +59,18 @@ app_ui <- function(request) {
         title = "Cociente de medias",
         value = "navcociente",
         icon = icon("chart-line"),
-        #hidden = T,
-        # bslib::layout_sidebar(
-          # sidebar = bslib::sidebar(
         mod_cociente_medias_ui("cociente_medias_1")
-          # ),
-          # bslib::layout_columns(
-          # fillable = TRUE,
-          # verbatimTextOutput("model_summary"),  # Mostrar el resumen del modelo
-          # plotOutput("forest_plot")
-          # )
+
 
         ),
+
+      bslib::nav_panel(
+        title = "Correlaciones",
+        value = "navcorrelaciones",
+        icon = icon("chart"),
+        mod_correlaciones_ui("correlaciones_1")
+      ),
+
 
       bslib::nav_panel(
         title = "Forestplot",
