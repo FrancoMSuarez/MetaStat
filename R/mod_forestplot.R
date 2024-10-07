@@ -13,13 +13,12 @@ mod_forestplot_ui <- function(id) {
   tagList(
 
     bslib::card(
-    style = "overflow-y: auto; height: 600px;",
-    div(
-      style = "overflow-y: auto;",
-    uiOutput(ns("dynamic_plot_ui"))
-    ),
-
-    downloadButton(ns("download_plot"), "Descargar Forest plot"))
+      style = "overflow-y: auto; height: 600px;",
+      div(
+        style = "overflow-y: auto;",
+        uiOutput(ns("dynamic_plot_ui"))
+      ),
+      downloadButton(ns("download_plot"), "Descargar Forest plot"))
 
   )
 }
@@ -34,20 +33,25 @@ mod_forestplot_server <- function(id, model){
 
     output$dynamic_plot_ui <- renderUI({
       req(model())
+
       total_studies <- length(model()$studlab)
       # Calcular la altura del gráfico basada en la cantidad de estudios
-      plot_height <- 300 + total_studies * 20  # Ajustar valores si es necesario
+      plot_height <- 5 + total_studies * 20  # Ajustar valores si es necesario
       plotOutput(ns("forest_plot"), height = paste0(plot_height, "px"))
     })
 
     output$forest_plot <- renderPlot({
       req(model())
+
+      print(model())
+
       par(mar = c(4, 4, 2, 1))
       meta::forest(model(),
                    col.diamond = "blue",  # Color del diamante
                    col.square = "black",  # Color de los cuadrados
                    col.square.lines = "black")  # Color de las líneas
     })
+
 
     # Descargar el forest plot en PNG
     output$download_plot <- downloadHandler(
@@ -64,4 +68,8 @@ mod_forestplot_server <- function(id, model){
   })
 }
 
+## To be copied in the UI
+# mod_forestplot_ui("forestplot_1")
 
+## To be copied in the server
+# mod_forestplot_server("forestplot_1")

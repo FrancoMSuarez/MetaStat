@@ -55,14 +55,38 @@ mod_home_ui <- function(id) {
 mod_home_server <- function(id){
   moduleServer(id, function(input, output, session) {
 
-    reactive({
-      if (input$startContinuos > 0) {
-        return("continuos")
-      } else if (input$startDiscretos > 0) {
-        return("discretos")
-      }
+    selected_page <- reactiveVal(NULL)
+    observeEvent(input$startContinuos, {
+      selected_page("continuos")
     })
+
+    observeEvent(input$startDiscretos, {
+      selected_page("discretos")
+    })
+
+    observeEvent(input$goHome, {
+      selected_page(NULL)
+      # Reiniciar los contadores de clic de los botones al volver a Home
+      updateActionButton(session, "startContinuos", value = 0)
+      updateActionButton(session, "startDiscretos", value = 0)
+    })
+
+    return(selected_page)
   })
+
+
+  #   selected_page <- reactive({
+  #     if (input$startContinuos > 0) {
+  #       return("continuos")
+  #     } else if (input$startDiscretos > 0) {
+  #       return("discretos")
+  #     } else  {
+  #       return(NULL)
+  #     }
+  #   })
+  #
+  #   return(selected_page)
+  # })
 }
 
 ## To be copied in the UI
@@ -70,3 +94,5 @@ mod_home_server <- function(id){
 
 ## To be copied in the server
 # mod_home_server("home_1")
+
+

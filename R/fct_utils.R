@@ -32,3 +32,29 @@ save_forest_plot_png <- function(model, file_name, studies_per_inch = 4) {
 
   dev.off()  # Cerrar el archivo PNG
 }
+
+
+save_funnel_plot_png <- function(model, file_name) {
+
+  # Crear el archivo PNG con las dimensiones ajustadas
+  png(file = file_name, width = 10, height = 20, units = "in", res = 300)
+
+  par(mar = c(4,4,2,1))
+
+  meta::funnel(model)
+
+  dev.off()
+}
+
+save_baujat_plot_png <- function(model, file_name) {
+
+  # Crear el archivo PNG con las dimensiones ajustadas
+  png(file = file_name, width = 30, height = 30, units = "in", res = 300)
+
+  par(mar = c(4,4,2,1))
+
+
+  meta::baujat(model)
+
+  dev.off()
+}
