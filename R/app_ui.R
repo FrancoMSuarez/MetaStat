@@ -151,12 +151,13 @@ golem_add_external_resources <- function() {
   )
 
   tags$head(
-    favicon(),
+    tags$link(rel = "shortcut icon", href = "www/favicon.png"),
     bundle_resources(
-      path = app_sys("app/www"),
-      app_title = "MetaStats"
+      path = app_sys('app/www'),
+      app_title = 'MetaStat'
     )
+  )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
-  )
+
 }
