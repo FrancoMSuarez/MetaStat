@@ -36,7 +36,7 @@ mod_forestplot_server <- function(id, model){
 
       total_studies <- length(model()$studlab)
       # Calcular la altura del gráfico basada en la cantidad de estudios
-      plot_height <- 5 + total_studies * 20  # Ajustar valores si es necesario
+      plot_height <- 10 + total_studies * 30  # Ajustar valores si es necesario
       plotOutput(ns("forest_plot"), height = paste0(plot_height, "px"))
     })
 
