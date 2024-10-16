@@ -11,7 +11,7 @@
 You can install the development version of `MetaStats` like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("FrancoMSuarez/MetaStats", ref = "pkg")
 ```
 
 ## Run
