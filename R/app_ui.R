@@ -128,6 +128,12 @@ app_ui <- function(request) {
         value = "navfunel",
         icon = icon("caret-up"),
         mod_funnel_ui("funnel_1")
+      ),
+
+      bslib::nav_panel(
+        title = "Meta-regresión",
+        value = "navmetareg",
+        mod_metaregresion_ui("metaregresion_1")
       )
 
 
