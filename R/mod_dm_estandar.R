@@ -140,6 +140,9 @@ mod_dm_estandar_server <- function(id, file_data){
       #   NULL  # Si autor también está vacío
       # }
       # )
+      cols_to_keep <- setdiff(names(df), c(input$N_e, input$M_e, input$S_e, input$N_c, input$M_c, input$S_c, input$Sub, input$author, input$año))
+
+      metaanalisis_df <- cbind(metaanalisis_df, df[, cols_to_keep, drop = FALSE])
 
 
       metaanalisis_df <- metaanalisis_df[

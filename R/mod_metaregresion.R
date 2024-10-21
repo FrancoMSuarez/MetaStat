@@ -167,13 +167,13 @@ mod_metaregresion_server <- function(id, model, file_data){
         tagList(
           h4(cat("Mixed-Effects Model (k =",metaregres$k.all,")")),
           h4("Tabla 1: Estadísticas del modelo"),
-          dataTableOutput(ns("tabla1")),
+          DT::DTOutput(ns("tabla1")),
           h4("Tabla 2: Cuantificación de heterogeneidad"),
-          dataTableOutput(ns("tabla2")),
+          DT::DTOutput(ns("tabla2")),
           h4("Tabla 3: Test de Heterogeneidad Residual"),
-          dataTableOutput(ns("tabla3")),
+          DT::DTOutput(ns("tabla3")),
           h4("Tabla 4: Coeficientes de la Metarregresión"),
-          dataTableOutput(ns("tabla4"))
+          DT::DTOutput(ns("tabla4"))
         )
       })
 

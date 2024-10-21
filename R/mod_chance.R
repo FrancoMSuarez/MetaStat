@@ -126,6 +126,10 @@ mod_chance_server <- function(id,file_data){
         }
       }
 
+      cols_to_keep <- setdiff(names(df), c(input$E_e, input$N_e, input$E_c, input$N_c, input$Sub, input$author, input$año))
+
+      metaanalisis_df <- cbind(metaanalisis_df, df[, cols_to_keep, drop = FALSE])
+
 
       metaanalisis_df <- metaanalisis_df[
         complete.cases(metaanalisis_df[, c("Ee", "Ne", "Ec", "Nc")]), ]
