@@ -7,6 +7,8 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @import readxl
+#'
 mod_fileInput_ui <- function(id) {
   ns <- NS(id)
   tagList(
@@ -18,11 +20,16 @@ mod_fileInput_ui <- function(id) {
     tags$hr(),
     checkboxInput(ns("header"), "Encabezado", TRUE),
     tags$hr(),
-    radioButtons(ns("sep"), "Separador",
+    radioButtons(ns("sep"), "Separador de columnas",
                  choices = c(Coma = ",",
                              Semicolon = ";",
                              Tab = "\t"),
                  selected = ","),
+    tags$hr(),
+    radioButtons(ns("decimal"), "Separador decimal",
+                 choices = c(Punto = ".",
+                             Coma = ","),
+                 selected = "."),
     tags$hr()
   )
 
@@ -39,6 +46,9 @@ mod_fileInput_server <- function(id){
       req(input$file1)
       tryCatch(
         {
+          first_row <- readLines(input$file1$datapath, n = 1)
+          decimal_sep <- if (grepl(",", first_row)) "," else "."
+
           if (grepl("\\.csv$", input$file1$name)) {
             df <- read.csv(input$file1$datapath, header = input$header, sep = input$sep)
           } else if (grepl("\\.xlsx$|\\.xls$", input$file1$name)) {
@@ -48,6 +58,18 @@ mod_fileInput_server <- function(id){
           } else {
             df <- NULL
           }
+
+          if (input$decimal == ",") {
+            df <- df  |>
+              dplyr::mutate_if(~ all(grepl("^[0-9]+(,[0-9]+)?$", .)), ~ as.numeric(gsub(",", ".", .)))
+          } else {
+            df <- df  |>
+              dplyr::mutate_if(~ all(grepl("^[0-9]+(\\.[0-9]+)?$", .)), as.numeric)
+          }
+
+          return(df)
+
+
         },
         error = function(e) {
           stop(safeError(e))

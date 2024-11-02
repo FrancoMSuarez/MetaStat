@@ -6,9 +6,15 @@ Authors@R:
 Description: PKG_DESC.
 License: MIT + file LICENSE
 Imports: 
+    bslib,
     config,
+    dplyr,
+    DT,
     golem,
-    shiny
+    meta,
+    readxl,
+    shiny,
+    shinyjs
 Suggests: 
     spelling,
     testthat (>= 3.0.0)
