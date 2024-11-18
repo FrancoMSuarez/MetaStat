@@ -18,7 +18,8 @@ mod_forestplot_ui <- function(id) {
         style = "overflow-y: auto;",
         uiOutput(ns("dynamic_plot_ui"))
       ),
-      downloadButton(ns("download_plot"), "Descargar Forest plot"))
+      downloadButton(ns("download_plot"), "Descargar Forest plot"),
+      downloadButton(ns("download_plot2"), "Descargar Forest plot pdf"))
 
   )
 }
@@ -65,8 +66,31 @@ mod_forestplot_server <- function(id, model){
       contentType = "image/png"
     )
 
+
+    output$download_plot2 <- downloadHandler(
+      filename = function() {
+        paste("forest_plot_", Sys.Date(), ".pdf", sep = "")
+      },
+      content = function(file) {
+        req(model())  # Verificar que el modelo esté disponible
+        save_forest_plot_pdf(model(), file)  # Generar el archivo PNG
+      },
+      contentType = "image/pdf"
+    )
+
+
+
+
   })
+
+
+
+
+
+
+
 }
+
 
 ## To be copied in the UI
 # mod_forestplot_ui("forestplot_1")

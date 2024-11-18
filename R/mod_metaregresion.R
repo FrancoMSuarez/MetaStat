@@ -22,7 +22,8 @@ mod_metaregresion_ui <- function(id) {
       ),
 
       bslib::card(
-        div(style = "height: 800px; overflow-y: scroll;",
+        div(
+          #style = "overflow-y: scroll;",
         uiOutput(ns("tablas2")),
         plotOutput(ns("graficoburbujas"),height = "600px", width = "100%")
         )

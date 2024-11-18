@@ -61,10 +61,10 @@ mod_fileInput_server <- function(id){
 
           if (input$decimal == ",") {
             df <- df  |>
-              dplyr::mutate_if(~ all(grepl("^[0-9]+(,[0-9]+)?$", .)), ~ as.numeric(gsub(",", ".", .)))
+              dplyr::mutate_if(~ all(grepl("^-?[0-9]+(,[0-9]+)?$", .)), ~ as.numeric(gsub(",", ".", .)))
           } else {
             df <- df  |>
-              dplyr::mutate_if(~ all(grepl("^[0-9]+(\\.[0-9]+)?$", .)), as.numeric)
+              dplyr::mutate_if(~ all(grepl("^-?[0-9]+(\\.[0-9]+)?$", .)), as.numeric)
           }
 
           return(df)

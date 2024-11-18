@@ -12,6 +12,9 @@ mod_funnel_ui <- function(id) {
   tagList(
     bslib::card(
       style = "overflow-y: auto; height: 600px;",
+
+      checkboxInput(ns("show_studlab"), "Mostrar estudios", value = TRUE),
+
       div(
         style = "overflow-y: auto;",
         plotOutput(ns("funnel_plot"))
@@ -44,7 +47,7 @@ mod_funnel_server <- function(id, model){
       print(model())
 
       par(mar = c(4, 4, 2, 1))
-      meta::funnel(model())
+      meta::funnel(model(), studlab = input$show_studlab)
     })
 
 
@@ -54,7 +57,7 @@ mod_funnel_server <- function(id, model){
       print(model())
 
       par(mar = c(4, 4, 2, 1))
-      meta::baujat(model())
+      meta::baujat(model(), studlab = input$show_studlab)
     })
 
     output$download_plot <- downloadHandler(
