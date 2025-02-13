@@ -485,7 +485,7 @@ mod_dif_risk_server <- function(id, file_data){
           h3("Tabla 7. Resultados por Subgrupos"),
           downloadButton(ns("download_res7"), "Descargar Tabla 7"),
           res8,
-          h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
+          h3("Tabla 8. Cuantificacion Heterogeneidad por Subgrupo"),
           res9,
           h3("Tabla 9. Prueba para la diferencias de subgrupos"),
           res12)
