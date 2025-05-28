@@ -38,23 +38,39 @@ mod_forestplot_server <- function(id, model){
 
     output$dynamic_plot_ui <- renderUI({
       req(model())
-
+#browser()
       total_studies <- length(model()$studlab)
       # Calcular la altura del gráfico basada en la cantidad de estudios
-      plot_height <- 10 + total_studies * 50  # Ajustar valores si es necesario
-      plotOutput(ns("forest_plot"), height = paste0(plot_height, "px"))
+      plot_height <- max(700, 10 + total_studies * 17)  # Ajustar valores si es necesario
+      div(
+        style = "flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; padding: 2px;",
+        div(
+          style = "min-height: 100%;  justify-content: center;",
+          plotOutput(ns("forest_plot"), height = paste0(plot_height, "px"))
+        )
+      )
+
     })
+
+    # output$forest_plot <- renderPlot({
+    #   req(model())
+    #
+    #   #print(model())
+    #
+    #   browser()
+    #
+    #   par(mar = c(1, 1, 2, 1))
+    #   model <- model()
+    #   meta::forest(model(),
+    #                col.diamond = "blue",  # Color del diamante
+    #                col.square = "black",  # Color de los cuadrados
+    #                col.square.lines = "black")  # Color de las líneas
+    # })
 
     output$forest_plot <- renderPlot({
       req(model())
-
-      print(model())
-
-      par(mar = c(1, 1, 2, 1))
-      meta::forest(model(),
-                   col.diamond = "blue",  # Color del diamante
-                   col.square = "black",  # Color de los cuadrados
-                   col.square.lines = "black")  # Color de las líneas
+      par(mar = c(5, 4, 5, 2))
+      generate_forest_plot(model())
     })
 
 

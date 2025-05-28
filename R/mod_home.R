@@ -56,6 +56,7 @@ mod_home_server <- function(id){
   moduleServer(id, function(input, output, session) {
 
     selected_page <- reactiveVal(NULL)
+
     observeEvent(input$startContinuos, {
       selected_page("continuos")
     })
@@ -64,15 +65,21 @@ mod_home_server <- function(id){
       selected_page("discretos")
     })
 
-    observeEvent(input$goHome, {
-      selected_page(NULL)
-      # Reiniciar los contadores de clic de los botones al volver a Home
-      updateActionButton(session, "startContinuos", value = 0)
-      updateActionButton(session, "startDiscretos", value = 0)
+    # observeEvent(input$navbar, {
+    #   browser()
+    #   selected_page(NULL)
+    # })
+
+    observeEvent(input$navbar, {
+      if (input$navbar == "navhome") {
+        selected_page(NULL)
+      }
     })
+
 
     return(selected_page)
   })
+
 
 
   #   selected_page <- reactive({

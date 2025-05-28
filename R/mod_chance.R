@@ -193,12 +193,12 @@ mod_chance_server <- function(id,file_data){
       if (m$common == TRUE){
         res8dt <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            exp(m$TE.common.w),
-            exp(m$seTE.common.w),
-            exp(m$lower.common.w),
-            exp(m$upper.common.w),
-            m$w.common.w / sum(m$w.common.w) * 100
+            Subgrupos = m[["subgroup.levels"]],
+            Estimacion = exp(m[["TE.common.w"]]),
+            EE = exp(m[["seTE.common.w"]]),
+            `LI[95%]` = exp(m[["lower.common.w"]]),
+            `LS[95%]` = exp(m[["upper.common.w"]]),
+            `Ponderación`= m$w.common.w / sum(m$w.common.w) * 100
           )
         colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
@@ -207,12 +207,12 @@ mod_chance_server <- function(id,file_data){
       if(m$common == FALSE){
         res8dt <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            exp(m$TE.random.w),
-            exp(m$seTE.random.w),
-            exp(m$lower.random.w),
-            exp(m$upper.random.w),
-            m$w.random.w / sum(m$w.random.w) * 100
+            Subgrupos = m[["subgroup.levels"]],
+            Estimacion = exp(m[["TE.random.w"]]),
+            EE = exp(m[["seTE.random.w"]]),
+            `LI[95%]` = exp(m[["lower.random.w"]]),
+            `LS[95%]` = exp(m[["upper.random.w"]]),
+            `Ponderación`= m$w.common.w / sum(m$w.common.w) * 100
           )
         colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
@@ -387,12 +387,12 @@ mod_chance_server <- function(id,file_data){
 
         res9 <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            m$tau.w ^ 2,
-            m$Q.w,
-            m$I2.w * 100,
-            m$lower.I2.w,
-            m$upper.I2.w
+            Subgrupo = m[["subgroup.levels"]],
+            Tau2 = m[["tau.w"]]^ 2,
+            Q= m[["Q.w"]],
+            I2= m[["I2.w"]] * 100,
+            LI= m[["lower.I2.w"]],
+            LS = m[["upper.I2.w"]]
           )
         colnames(res9) = c("Subgrupo",
                            "Tau2",
@@ -498,7 +498,7 @@ mod_chance_server <- function(id,file_data){
           h3("Tabla 7. Resultados por Subgrupos"),
           downloadButton(ns("download_res7"), "Descargar Tabla 7"),
           res8,
-          h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
+          h3("Tabla 8. Cuantificación Heterogeneidad por Subgrupo"),
           res9,
           h3("Tabla 9. Prueba para la diferencias de subgrupos"),
           res12)

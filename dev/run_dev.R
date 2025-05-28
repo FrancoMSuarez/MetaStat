@@ -1,4 +1,5 @@
 # Set options here
+library(golem)
 options(golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
 
 # Comment this if you don't want the app to be served on a random port
@@ -13,3 +14,4 @@ golem::document_and_reload()
 
 # Run the application
 run_app()
+

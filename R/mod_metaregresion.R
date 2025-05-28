@@ -56,7 +56,7 @@ mod_metaregresion_server <- function(id, model, file_data){
 
       print(input$covar)
       req(model())
-      # browser()
+      #browser()
       model <- model()
 
 
@@ -104,7 +104,7 @@ mod_metaregresion_server <- function(id, model, file_data){
       )
 
       res3 <- data.frame(cbind("QE" = metaregres$QE,
-                               "p-val" = metaregres$QEp))
+                               "p.value" = metaregres$QEp))
 
       res3 <- DT::datatable(
         res3,
@@ -126,7 +126,7 @@ mod_metaregresion_server <- function(id, model, file_data){
 
       res3 <- DT::formatRound(
         res3,
-        columns = c("p.val"),
+        columns = c("p.value"),
         digits = 5
       )
 
@@ -138,7 +138,7 @@ mod_metaregresion_server <- function(id, model, file_data){
         "LI[95%]" = metaregres$ci.lb,
         "LS[95%]"=metaregres$ci.ub))
 
-      colnames(res4) <- c(" ","Estimate","SE","p.valor","LI[95%]","LS[95%]")
+      colnames(res4) <- c(" ","Estimate","SE","p.value","LI[95%]","LS[95%]")
 
       res4 <- DT::datatable(
         res4,
@@ -154,7 +154,7 @@ mod_metaregresion_server <- function(id, model, file_data){
 
       res4 <- DT::formatRound(
         res4,
-        columns = c("p.valor"),
+        columns = c("p.value"),
         digits = 5
       )
 

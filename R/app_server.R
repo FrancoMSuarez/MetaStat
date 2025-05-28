@@ -11,6 +11,12 @@ app_server <- function(input, output, session) {
 
   selected_page <- mod_home_server("home_1")
 
+  observeEvent(input$navbar, {
+    if (input$navbar == "navhome") {
+      selected_page(NULL)  # <- Esto es clave
+    }
+  })
+
   shinyjs::hide(selector = '#navbar li a[data-value="navdata"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navcociente"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navcorrelaciones"]')
@@ -47,6 +53,8 @@ app_server <- function(input, output, session) {
 
   observeEvent(selected_page(), {
     if (is.null(selected_page())) return()
+
+
     shinyjs::hide(selector = '#navbar li a[data-value="navdata"]')
     shinyjs::hide(selector = '#navbar li a[data-value="navcociente"]')
     shinyjs::hide(selector = '#navbar li a[data-value="navcorrelaciones"]')

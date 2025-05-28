@@ -190,10 +190,10 @@ mod_dm_estandar_server <- function(id, file_data){
       if (m$common == FALSE){
         res1 <- data.frame(summary(m))
         res1$Ponderacion= res1$w.random/sum(res1$w.random)*100
-        res1$ROM=exp(res1$TE)
-        res1$ROM_se=exp(res1$seTE)
-        res1$lower_tr=exp(res1$lower)
-        res1$upper_tr=exp(res1$upper)
+        res1$ROM=res1$TE
+        res1$ROM_se=res1$seTE
+        res1$lower_tr=res1$lower
+        res1$upper_tr=res1$upper
         res1 <- dplyr::select( res1, "n.e", "mean.e","sd.e","n.c","mean.c","sd.c","studlab","TE","seTE","lower","upper","zval","pval","w.random", "Ponderacion")
         colnames(res1)=c("N.E", "Media.E", "DE.E", "N.C", "Media.C", "DE.C", "Estudio", "SDM", "EE.SDM", "LI[95%]", "LS[95%]", "Z", "valor-p", "Ponderación" , "Ponderación (%)")
         return(res1) }
@@ -205,12 +205,12 @@ mod_dm_estandar_server <- function(id, file_data){
       if (m$common == TRUE){
         res8dt <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            exp(m$TE.common.w),
-            exp(m$seTE.common.w),
-            exp(m$lower.common.w),
-            exp(m$upper.common.w),
-            m$w.common.w / sum(m$w.common.w) * 100
+            Subgrupo = m[["subgroup.levels"]],
+            Estimación = m[["TE.common.w"]],
+            EE = m[["seTE.common.w"]],
+            `LI[95%]` = m[["lower.fixed.w"]],
+            `LS[95%]` = m[["upper.fixed.w"]],
+            `Ponderación` = (m$w.common.w / sum(m$w.common.w)) * 100
           )
         colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
@@ -219,12 +219,12 @@ mod_dm_estandar_server <- function(id, file_data){
       if(m$common == FALSE){
         res8dt <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            exp(m$TE.random.w),
-            exp(m$seTE.random.w),
-            exp(m$lower.random.w),
-            exp(m$upper.random.w),
-            m$w.random.w / sum(m$w.random.w) * 100
+            Subgrupo = m[["subgroup.levels"]],
+            Estimación = m[["TE.random.w"]],
+            EE = m[["seTE.random.w"]],
+            `LI[95%]` = m[["lower.random.w"]],
+            `LS[95%]` = m[["upper.random.w"]],
+            `Ponderación` = (m$w.random.w / sum(m$w.random.w)) * 100
           )
         colnames(res8dt) = c("Subgrupo","Estimación", "EE", "LI[95%]", "LS[95%]", "Ponderación")
         return(res8dt)
@@ -399,12 +399,12 @@ mod_dm_estandar_server <- function(id, file_data){
 
         res9 <-
           data.frame(
-            levels(as.factor((m$subgroup))),
-            m$tau.w ^ 2,
-            m$Q.w,
-            m$I2.w * 100,
-            m$lower.I2.w,
-            m$upper.I2.w
+            Subgrupo = m[["subgroup.levels"]],
+            Tau2 = m[["tau.w"]]^ 2,
+            Q= m[["Q.w"]],
+            I2= m[["I2.w"]] * 100,
+            LI= m[["lower.I2.w"]],
+            LS = m[["upper.I2.w"]]
           )
         colnames(res9) = c("Subgrupo",
                            "Tau2",
@@ -510,7 +510,7 @@ mod_dm_estandar_server <- function(id, file_data){
           h3("Tabla 7. Resultados por Subgrupos"),
           downloadButton(ns("download_res7"), "Descargar Tabla 7"),
           res8,
-          h3("Tabla 8. Cuantififacion Heterogeneidad por Subgrupo"),
+          h3("Tabla 8. Cuantificación Heterogeneidad por Subgrupo"),
           res9,
           h3("Tabla 9. Prueba para la diferencias de subgrupos"),
           res12)

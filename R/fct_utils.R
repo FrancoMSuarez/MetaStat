@@ -12,23 +12,30 @@ find_vars <- function(data, filter) {
 
 
 # Función para guardar el forest plot en formato PNG con dimensiones ajustadas
-save_forest_plot_png <- function(model, file_name, studies_per_inch = 2) {
+save_forest_plot_png <- function(model, file_name, studies_per_inch = 4,
+                                 min_height = 10, max_height = 70,
+                                 width_inches = 12, res = 300) {
+
+  # browser()
   total_studies <- length(model$studlab)  # Total de estudios en el meta-análisis
 
   # Definir las dimensiones del gráfico (por ejemplo, 2 estudios por pulgada de altura)
-  height_inches <- total_studies / studies_per_inch
-  width_inches <- 25  # Mantener un ancho fijo
+  height_inches <- min(max(total_studies / studies_per_inch, min_height), max_height)
+
 
   # Crear el archivo PNG con las dimensiones ajustadas
-  png(file = file_name, width = width_inches, height = height_inches, units = "in", res = 300)
+  png(file = file_name, width = width_inches, height = height_inches,
+      units = "in", res = res)
 
-  par(mar = c(1,1,1,1))
+  par(mar = c(2,2,2,2))
 
   # Generar el forest plot
-  meta::forest(model,
-               col.diamond = "blue",  # Color del diamante
-               col.square = "black",  # Color de los cuadrados
-               col.square.lines = "black")  # Color de las líneas
+  # meta::forest(model,
+  #              col.diamond = "blue",  # Color del diamante
+  #              col.square = "black",  # Color de los cuadrados
+  #              col.square.lines = "black")  # Color de las líneas
+
+  generate_forest_plot(model)
 
   dev.off()  # Cerrar el archivo PNG
 }
@@ -105,7 +112,7 @@ save_baujat_plot_png <- function(model, file_name, show_studlab = TRUE) {
 #   dev.off()  # Cerrar el archivo PDF
 # }
 
-save_forest_plot_pdf <- function(model, file_name, studies_per_page = 20) {
+save_forest_plot_pdf <- function(model, file_name, studies_per_page = 25) {
   message("Guardando PDF en: ", file_name)
 
   # Total de estudios y páginas necesarias
@@ -113,7 +120,7 @@ save_forest_plot_pdf <- function(model, file_name, studies_per_page = 20) {
   total_pages <- ceiling(total_studies / studies_per_page)
 
   # Crear el archivo PDF
-  pdf(file = file_name, width = 10, height = 10)  # Ajustar tamaño según sea necesario
+  pdf(file = file_name, width = 12, height = 8)  # Ajustar tamaño según sea necesario
 
   for (page in 1:total_pages) {
     # Calcular el rango de estudios para esta página
@@ -140,14 +147,29 @@ save_forest_plot_pdf <- function(model, file_name, studies_per_page = 20) {
     par(mar = c(4, 4, 2, 1))  # Ajustar márgenes si es necesario
 
     # Generar el forest plot
-    meta::forest(sub_model,
-                 col.diamond = "blue",    # Color del diamante
-                 col.square = "black",    # Color de los cuadrados
-                 col.square.lines = "black")  # Color de las líneas de conexión
+    # meta::forest(sub_model,
+    #              col.diamond = "blue",    # Color del diamante
+    #              col.square = "black",    # Color de los cuadrados
+    #              col.square.lines = "black")  # Color de las líneas de conexión
+    generate_forest_plot(sub_model)
 
-    message("Página ", page, " generada con éxito")
+    #message("Página ", page, " generada con éxito")
   }
 
   dev.off()  # Cerrar el archivo PDF
   message("PDF guardado exitosamente en: ", file_name)
 }
+
+
+
+
+
+##### 28/5
+generate_forest_plot <- function(model) {
+  meta::forest(model,
+               col.diamond = "blue",
+               col.square = "black",
+               col.square.lines = "black")
+}
+
+
