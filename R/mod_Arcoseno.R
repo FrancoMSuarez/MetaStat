@@ -65,7 +65,7 @@ mod_Arcoseno_ui <- function(id) {
                                    "Empirical Bayes (EB)" = "EB"),
                     selected = "DL"),
 
-        actionButton(ns("run_model"), "Correr modelo",
+        actionButton(ns("run_model"), "Ajustar modelo",
                      class = "btn-primary")
       ),
       bslib::card(
@@ -129,7 +129,7 @@ mod_Arcoseno_server <- function(id,file_data){
 
 
       metaanalisis_df <- metaanalisis_df[
-        complete.cases(metaanalisis_df[, c("Ee", "Ne", "Ec", "Nc")]), ]
+        stats::complete.cases(metaanalisis_df[, c("Ee", "Ne", "Ec", "Nc")]), ]
 
       req(nrow(metaanalisis_df) > 0)
 
@@ -532,7 +532,7 @@ mod_Arcoseno_server <- function(id,file_data){
       },
       content = function(file) {
         res1 <- res1_data()
-        write.csv(res1, file, row.names = FALSE)
+        utils::write.csv(res1, file, row.names = FALSE)
       }
     )
 
@@ -544,7 +544,7 @@ mod_Arcoseno_server <- function(id,file_data){
       },
       content = function(file) {
         res8 <- res8_data()
-        write.csv(res8, file, row.names = FALSE)
+        utils::write.csv(res8, file, row.names = FALSE)
       }
     )
 

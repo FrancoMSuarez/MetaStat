@@ -50,11 +50,11 @@ mod_fileInput_server <- function(id){
           decimal_sep <- if (grepl(",", first_row)) "," else "."
 
           if (grepl("\\.csv$", input$file1$name)) {
-            df <- read.csv(input$file1$datapath, header = input$header, sep = input$sep)
+            df <- utils::read.csv(input$file1$datapath, header = input$header, sep = input$sep)
           } else if (grepl("\\.xlsx$|\\.xls$", input$file1$name)) {
             df <- readxl::read_excel(input$file1$datapath)
           } else if (grepl("\\.txt$", input$file1$name)) {
-            df <- read.table(input$file1$datapath, header = input$header, sep = input$sep)
+            df <- utils::read.table(input$file1$datapath, header = input$header, sep = input$sep)
           } else {
             df <- NULL
           }
@@ -80,7 +80,7 @@ mod_fileInput_server <- function(id){
     output$contents <- renderTable({
       df <- data()
       if (input$disp == "head") {
-        return(head(df))
+        return(utils::head(df))
       } else {
         return(df)
       }

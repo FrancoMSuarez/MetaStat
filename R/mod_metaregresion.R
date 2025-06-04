@@ -61,7 +61,7 @@ mod_metaregresion_server <- function(id, model, file_data){
 
 
       #browser()
-      metaregres <- meta::metareg(model, as.formula(paste("~", input$covar)))
+      metaregres <- meta::metareg(model, stats::as.formula(paste("~", input$covar)))
 
       resultado1 <- data.frame(t(metaregres$fit.stats$REML))
       colnames(resultado1) <- c("logLik","deviance","AIC","BIC","AICc")

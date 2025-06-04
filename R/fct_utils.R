@@ -24,10 +24,10 @@ save_forest_plot_png <- function(model, file_name, studies_per_inch = 4,
 
 
   # Crear el archivo PNG con las dimensiones ajustadas
-  png(file = file_name, width = width_inches, height = height_inches,
+  grDevices::png(file = file_name, width = width_inches, height = height_inches,
       units = "in", res = res)
 
-  par(mar = c(2,2,2,2))
+  graphics::par(mar = c(2,2,2,2))
 
   # Generar el forest plot
   # meta::forest(model,
@@ -37,33 +37,33 @@ save_forest_plot_png <- function(model, file_name, studies_per_inch = 4,
 
   generate_forest_plot(model)
 
-  dev.off()  # Cerrar el archivo PNG
+  grDevices::dev.off()  # Cerrar el archivo PNG
 }
 
 
 save_funnel_plot_png <- function(model, file_name, show_studlab = TRUE) {
 
   # Crear el archivo PNG con las dimensiones ajustadas
-  png(file = file_name, width = 15, height = 15, units = "in", res = 300)
+  grDevices::png(file = file_name, width = 15, height = 15, units = "in", res = 300)
 
-  par(mar = c(4,4,2,1))
+  graphics::par(mar = c(4,4,2,1))
 
   meta::funnel(model, studlab = show_studlab)
 
-  dev.off()
+  grDevices::dev.off()
 }
 
 save_baujat_plot_png <- function(model, file_name, show_studlab = TRUE) {
 
   # Crear el archivo PNG con las dimensiones ajustadas
-  png(file = file_name, width = 15, height = 15, units = "in", res = 300)
+  grDevices::png(file = file_name, width = 15, height = 15, units = "in", res = 300)
 
-  par(mar = c(4,4,2,1))
+  graphics::par(mar = c(4,4,2,1))
 
 
   meta::baujat(model, studlab = show_studlab)
 
-  dev.off()
+  grDevices::dev.off()
 }
 
 
@@ -119,8 +119,8 @@ save_forest_plot_pdf <- function(model, file_name, studies_per_page = 25) {
   total_studies <- length(model$studlab)
   total_pages <- ceiling(total_studies / studies_per_page)
 
-  # Crear el archivo PDF
-  pdf(file = file_name, width = 12, height = 8)  # Ajustar tamaño según sea necesario
+  # Crear el archivo PDFpng
+  grDevices::pdf(file = file_name, width = 12, height = 8)  # Ajustar tamaño según sea necesario
 
   for (page in 1:total_pages) {
     # Calcular el rango de estudios para esta página
@@ -144,7 +144,7 @@ save_forest_plot_pdf <- function(model, file_name, studies_per_page = 25) {
     }
 
     # Configurar el gráfico para esta página
-    par(mar = c(4, 4, 2, 1))  # Ajustar márgenes si es necesario
+    graphics::par(mar = c(4, 4, 2, 1))  # Ajustar márgenes si es necesario
 
     # Generar el forest plot
     # meta::forest(sub_model,
@@ -156,7 +156,7 @@ save_forest_plot_pdf <- function(model, file_name, studies_per_page = 25) {
     #message("Página ", page, " generada con éxito")
   }
 
-  dev.off()  # Cerrar el archivo PDF
+  grDevices::dev.off()  # Cerrar el archivo PDF
   message("PDF guardado exitosamente en: ", file_name)
 }
 

@@ -46,7 +46,7 @@ mod_funnel_server <- function(id, model){
 
       print(model())
 
-      par(mar = c(4, 4, 2, 1))
+      graphics::par(mar = c(4, 4, 2, 1))
       meta::funnel(model(), studlab = input$show_studlab)
     })
 
@@ -56,7 +56,7 @@ mod_funnel_server <- function(id, model){
 
       print(model())
 
-      par(mar = c(4, 4, 2, 1))
+      graphics::par(mar = c(4, 4, 2, 1))
       meta::baujat(model(), studlab = input$show_studlab)
     })
 

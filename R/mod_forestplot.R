@@ -69,7 +69,7 @@ mod_forestplot_server <- function(id, model){
 
     output$forest_plot <- renderPlot({
       req(model())
-      par(mar = c(5, 4, 5, 2))
+      graphics::par(mar = c(5, 4, 5, 2))
       generate_forest_plot(model())
     })
 

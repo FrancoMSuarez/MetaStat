@@ -1,3 +1,3 @@
-# MetaStats (development version)
+# MetaStats 0.0.0.9000
 
-* Initial CRAN submission.
+* Primera versión del paquete.

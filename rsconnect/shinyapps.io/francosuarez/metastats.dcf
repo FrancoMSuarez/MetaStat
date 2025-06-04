@@ -1,10 +1,10 @@
 name: metastats
-title:
+title: MetaStats
 username: francosuarez
 account: francosuarez
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13028938
-bundleId: 9232317
+bundleId: 10398099
 url: https://francosuarez.shinyapps.io/metastats/
 version: 1
