@@ -10,7 +10,7 @@
 You can install the development version of `MetaStats` like so:
 
 ``` r
-pak::pkg_install("FrancoMSuarez/MetaStats")
+pak::pkg_install("FrancoMSuarez/MetaStat")
 ```
 
 ## Run

@@ -25,7 +25,7 @@ You can install the development version of `{MetaStats}` like so:
 
 ```{r, eval = FALSE}
 # install.packages('pak')
-pak::pkg_install("FrancoMSuarez/MetaStats")
+pak::pkg_install("FrancoMSuarez/MetaStat")
 ```
 
 ## Run

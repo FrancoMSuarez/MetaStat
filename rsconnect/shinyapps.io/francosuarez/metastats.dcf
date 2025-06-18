@@ -5,6 +5,9 @@ account: francosuarez
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13028938
-bundleId: 10398099
+bundleId: 10479570
 url: https://francosuarez.shinyapps.io/metastats/
 version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: renv.lock
