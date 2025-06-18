@@ -1,0 +1,32 @@
+/* Estilo personalizado para el navbar de MetaStat */
+
+/* Fondo oscuro para el navbar */
+.navbar {
+  background-color: #343a40 !important; /* similar a Bootstrap 'bg-dark' */
+}
+
+/* Texto blanco en el brand y los links del navbar */
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: white !important;
+}
+
+/* Texto activo/acento en el link seleccionado */
+.navbar .nav-link.active {
+  color: white !important;  /* Color minty */
+  font-weight: bold;
+}
+
+/* Cambiar el color del ícono del botón del menú hamburguesa */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;utf8,\
+<svg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'>\
+<path stroke='white' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/>\
+</svg>") !important;
+}
+
+/* Evitar que los textos se oscurezcan por el tema */
+[data-bs-theme="light"] .navbar {
+  background-color: #343a40 !important;
+  color: white;
+}

@@ -14,6 +14,7 @@ run_app <- function(
   uiPattern = "/",
   ...
 ) {
+  #shiny::addResourcePath("www", system.file("app/www", package = "MetaStat"))
   golem::with_golem_options(
     app = shinyApp(
       ui = app_ui,
