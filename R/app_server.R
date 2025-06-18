@@ -31,6 +31,9 @@ app_server <- function(input, output, session) {
   shinyjs::hide(selector = '#navbar li a[data-value="navrr"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navfunel"]')
   shinyjs::hide(selector = '#navbar li a[data-value="navmetareg"]')
+  shinyjs::hide(selector = '#navbar li a[data-value="metCont"]')
+  shinyjs::hide(selector = '#navbar li a[data-value="metDis"]')
+  shinyjs::hide(selector = '#navbar li a[data-value="visu"]')
 
   observeEvent(input$navbar, {
     if (input$navbar == "navhome") {
@@ -48,6 +51,9 @@ app_server <- function(input, output, session) {
       shinyjs::hide(selector = '#navbar li a[data-value="navrr"]')
       shinyjs::hide(selector = '#navbar li a[data-value="navfunel"]')
       shinyjs::hide(selector = '#navbar li a[data-value="navmetareg"]')
+      shinyjs::hide(selector = '#navbar li a[data-value="metCont"]')
+      shinyjs::hide(selector = '#navbar li a[data-value="metDis"]')
+      shinyjs::hide(selector = '#navbar li a[data-value="visu"]')
     }
   })
 
@@ -69,8 +75,12 @@ app_server <- function(input, output, session) {
     shinyjs::hide(selector = '#navbar li a[data-value="navrr"]')
     shinyjs::hide(selector = '#navbar li a[data-value="navfunel"]')
     shinyjs::hide(selector = '#navbar li a[data-value="navmetareg"]')
+    shinyjs::hide(selector = '#navbar li a[data-value="metCont"]')
+    shinyjs::hide(selector = '#navbar li a[data-value="metDis"]')
+    shinyjs::hide(selector = '#navbar li a[data-value="visu"]')
 
     if (selected_page() == "continuos" ) {
+      shinyjs::show(selector = '#navbar li a[data-value="metCont"]')
       shinyjs::show(selector = '#navbar li a[data-value="navdata"]')
       shinyjs::show(selector = '#navbar li a[data-value="navcociente"]')
       shinyjs::show(selector = '#navbar li a[data-value="navcorrelaciones"]')
@@ -80,11 +90,13 @@ app_server <- function(input, output, session) {
       shinyjs::show(selector = '#navbar li a[data-value="navforest"]')
       shinyjs::show(selector = '#navbar li a[data-value="navfunel"]')
       shinyjs::show(selector = '#navbar li a[data-value="navmetareg"]')
+      shinyjs::show(selector = '#navbar li a[data-value="visu"]')
 
       updateTabsetPanel(session, "navbar", selected = "navdata")
 
 
     } else if (selected_page() == "discretos") {
+      shinyjs::show(selector = '#navbar li a[data-value="metDis"]')
       shinyjs::show(selector = '#navbar li a[data-value="navdata"]')
       shinyjs::show(selector = '#navbar li a[data-value="navchance"]')
       shinyjs::show(selector = '#navbar li a[data-value="navarcoseno"]')
@@ -94,6 +106,7 @@ app_server <- function(input, output, session) {
       shinyjs::show(selector = '#navbar li a[data-value="navforest"]')
       shinyjs::show(selector = '#navbar li a[data-value="navfunel"]')
       shinyjs::show(selector = '#navbar li a[data-value="navmetareg"]')
+      shinyjs::show(selector = '#navbar li a[data-value="visu"]')
 
 
       updateTabsetPanel(session, "navbar", selected = "navdata")

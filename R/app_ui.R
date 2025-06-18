@@ -44,13 +44,53 @@ app_ui <- function(request) {
         )
       ),
 
-      # Cociente de Medias
-      bslib::nav_panel(
-        title = "Cociente de medias",
-        value = "navcociente",
-        icon = icon("chart-line"),
-        mod_cociente_medias_ui("cociente_medias_1")
+      bslib::nav_menu(  #####
+        "Meta-análisis",
+        value = "metCont", ######
+        icon = icon("chart-line"), #######
+
+        # Cociente de Medias
+        bslib::nav_panel(
+          title = "Cociente de medias",
+          value = "navcociente",
+          icon = icon("chart-line"),
+          mod_cociente_medias_ui("cociente_medias_1")
         ), ### Continuo
+
+        bslib::nav_panel(
+          title = "Correlaciones",
+          value = "navcorrelaciones",
+          icon = icon("chart-line"),
+          mod_correlaciones_ui("correlaciones_1")
+        ), ### Continuo
+
+        bslib::nav_panel(
+          title = "Diferencias de medias",
+          value = "navdif_medias",
+          icon = icon("chart-line"),
+          mod_difdemedias_ui("difdemedias_1")
+        ), ### Continuo
+
+        bslib::nav_panel(
+          title = "Diferencias de medias estandarizadas",
+          value = "navdif_medias_st",
+          icon = icon("chart-line"),
+          mod_dm_estandar_ui("dm_estandar_1")
+        ), #### Continuo
+
+        bslib::nav_panel(
+          title = "Media",
+          value = "navmedia",
+          icon = icon("chart-line"),
+          mod_medias_ui("medias_1")
+        ), #### Continuo
+
+      ),
+
+      bslib::nav_menu(  #####
+                        "Meta-análisis",
+                        value = "metDis", ######
+                        icon = icon("chart-bar"),
 
       bslib::nav_panel(
         title = "Cociente de chance",
@@ -60,26 +100,11 @@ app_ui <- function(request) {
       ), ### Discreto
 
       bslib::nav_panel(
-        title = "Correlaciones",
-        value = "navcorrelaciones",
-        icon = icon("chart-line"),
-        mod_correlaciones_ui("correlaciones_1")
-      ), ### Continuo
-
-
-      bslib::nav_panel(
         title = "Diferencia de arcoseno",
         value = "navarcoseno",
         icon = icon("chart-bar"),
         mod_Arcoseno_ui("Arcoseno_1")
         ), ### Discreto
-
-      bslib::nav_panel(
-        title = "Diferencias de medias",
-        value = "navdif_medias",
-        icon = icon("chart-line"),
-        mod_difdemedias_ui("difdemedias_1")
-      ), ### Continuo
 
       bslib::nav_panel(
         title = "Diferencia de riesgo",
@@ -89,13 +114,6 @@ app_ui <- function(request) {
       ), ### Discreto
 
       bslib::nav_panel(
-        title = "Diferencias de medias estandarizadas",
-        value = "navdif_medias_st",
-        icon = icon("chart-line"),
-        mod_dm_estandar_ui("dm_estandar_1")
-      ), #### Continuo
-
-      bslib::nav_panel(
         title = "Estimación de una proporción",
         value = "navprop",
         icon = icon("chart-bar"),
@@ -103,18 +121,17 @@ app_ui <- function(request) {
       ), ### Discreta
 
       bslib::nav_panel(
-        title = "Media",
-        value = "navmedia",
-        icon = icon("chart-line"),
-        mod_medias_ui("medias_1")
-      ), #### Continuo
-
-      bslib::nav_panel(
         title = "Riesgo relativo",
         value = "navrr",
         icon = icon("chart-bar"),
         mod_risk_rel_ui("risk_rel_1")
+      )
       ),
+
+      bslib::nav_menu(  #####
+                        "Visualizacion",
+                        value = "visu", ######
+                        icon = icon("tree"),
 
       bslib::nav_panel(
         title = "Forestplot",
@@ -128,6 +145,7 @@ app_ui <- function(request) {
         value = "navfunel",
         icon = icon("caret-up"),
         mod_funnel_ui("funnel_1")
+      )
       ),
 
       bslib::nav_panel(
