@@ -1,0 +1,13 @@
+name: metastat
+title:
+username: francosuarez
+account: francosuarez
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 14957414
+bundleId: 10479609
+url: https://francosuarez.shinyapps.io/metastat/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: renv.lock

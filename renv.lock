@@ -65,22 +65,20 @@
       ],
       "Hash": "5122bb14d8736372411f955e1b16bc8a"
     },
+    "MetaStat": {
+      "Source": "Local",
+      "Path": "MetaStat"
+    },
     "MetaStats": {
       "Package": "MetaStats",
       "Version": "0.0.0.9000",
-      "Source": "unknown",
-      "Requirements": [
-        "DT",
-        "bslib",
-        "config",
-        "dplyr",
-        "golem",
-        "meta",
-        "readxl",
-        "shiny",
-        "shinyjs"
-      ],
-      "Hash": "d6058e147c320c433b20c42fe401a00a"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "FrancoMSuarez",
+      "RemoteRepo": "MetaStat",
+      "RemoteRef": "master",
+      "RemoteSha": "76895e53dc28c15921166b63e0e77a5660a39d5a"
     },
     "PKI": {
       "Package": "PKI",
