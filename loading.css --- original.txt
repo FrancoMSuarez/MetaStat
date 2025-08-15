@@ -1,0 +1,412 @@
+loading.css --- original:
+/*
+  Spinner CSS licensed MIT
+The MIT License (MIT)
+Copyright (c) 2015 Tobias Ahlin
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+  The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+  
+.spinner {
+  margin: 100px auto;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.spinner > div {
+  background-color: white;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
+  
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
+
+#status {
+  text-align: center;
+  color: white;
+  font-size: 10px;	
+  font-family: Arial,Helvetica Neue,Helvetica,sans-serif; 
+}
+
+loading.html original:
+<!-- Copyright (c) 2018 Dirk Schumacher, Noam Ross, Rich FitzJohn -->
+<!-- Copyright (c) 2024 Jinhwan Kim -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="loading.css" media="all">
+</head>
+<body>
+  <div id="loading-spinner" class="spinner">
+    <div class="rect1"></div>
+    <div class="rect2"></div>
+    <div class="rect3"></div>
+    <div class="rect4"></div>
+    <div class="rect5"></div>
+  </div>
+  <div id="status"></div>
+  <script>
+    let electron = require('electron');
+    let failed = false;
+    electron.ipcRenderer.on('start-webserver-event', (event, message) => {
+      if (!failed && message.attempt >= 1) {
+        let el = document.getElementById('status')
+        el.innerHTML = <p>It takes longer than expected. Please wait a little more.</p>;
+      }
+    })    
+  </script>
+</body>
+</html>
+
+
+package.json 
+{
+  "name": "MetaStat",
+  "productName": "MetaStat",
+  "version": "1.0.0",
+  "description": "MetaStat: una aplicación en R Shiny para transformar datos en evidencia científica a través del meta-análisis",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "make": "electron-forge make"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Suarez Franco",
+    "email": "suarezfranco@agro.unc.edu.ar"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FrancoMSuarez/MetaStat"
+  },
+  "dependencies": {
+    "axios": "0.27.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "esm": "^3.2.25",
+    "execa": "^5.1.1",
+    "pidtree": "^0.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.20",
+    "@babel/plugin-transform-async-to-generator": "^7.22.5",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "electron": "^26.2.1",
+    "fs-extra": "^11.1.1"
+  },
+  "config": {
+  "forge": {
+    "packagerConfig": {
+      "icon": "src/images/icon/favicon"
+    },
+    "makers": [
+      {
+        "name": "@electron-forge/maker-zip",
+        "platforms": ["win32"]
+      },
+      {
+        "name": "@electron-forge/maker-squirrel",
+        "config": {
+          "name": "MetaStat"
+        }
+      }
+    ]
+  }
+}
+}
+
+main
+// Copyright (c) 2018 Dirk Schumacher, Noam Ross, Rich FitzJohn
+// Copyright (c) 2024 Jinhwan Kim
+import {
+    app,
+    session,
+    BrowserWindow
+} from 'electron'
+
+import path from 'path'
+import http from 'axios'
+import os from 'os'
+import execa from 'execa'
+import pidtree from 'pidtree';
+import {
+    randomPort,
+    waitFor,
+    getRPath
+} from './helpers'
+
+const rPath = getRPath(os.platform())
+
+let shutdown = false
+
+const rpath = path.join(app.getAppPath(), rPath)
+const libPath = path.join(rpath, 'library')
+const rscript = path.join(rpath, 'bin', 'R')
+const shinyAppPath = path.join(app.getAppPath(), 'shiny')
+
+const backgroundColor = '#2c3e50'
+
+let rShinyProcess = null
+
+if (require('electron-squirrel-startup')) { 
+    app.quit()
+}
+
+const tryStartWebserver = async (attempt, progressCallback, onErrorStartup, onErrorLater, onSuccess) => {
+    if (attempt > 100) {
+        await progressCallback({
+            attempt: attempt,
+            code: 'failed'
+        })
+        await onErrorStartup()
+        return
+    }
+
+    if (rShinyProcess !== null) {
+        await onErrorStartup() 
+        return
+    }
+
+    let shinyPort = randomPort()
+
+    await progressCallback({
+        attempt: attempt,
+        code: 'start'
+    })
+
+    let shinyRunning = false
+    const onError = async (e) => {
+        console.error(e)
+        rShinyProcess = null
+        if (shutdown) { // global state :(
+            return
+        }
+        if (shinyRunning) {
+            await onErrorLater()
+        } else {
+            await tryStartWebserver(attempt + 1, progressCallback, onErrorStartup, onErrorLater, onSuccess)
+        }
+    }
+
+    let shinyProcessAlreadyDead = false
+    rShinyProcess = execa(rscript,
+        ['--vanilla', '-f', path.join(app.getAppPath(), 'start-shiny.R')], {
+            env: {
+                'WITHIN_ELECTRON': '1', // can be used within an app to implement specific behaviour
+                'RHOME': rpath,
+                'R_HOME_DIR': rpath,
+                'RE_SHINY_PORT': shinyPort,
+                'RE_SHINY_PATH': shinyAppPath,
+                'R_LIBS': libPath,
+                'R_LIBS_USER': libPath,
+                'R_LIBS_SITE': libPath,
+                'R_LIB_PATHS': libPath
+            }
+        });
+        pidtree(rShinyProcess.pid, function (err, pids) {
+            let child_pids = pids;
+          });
+
+    let url = `http://127.0.0.1:${shinyPort}`
+    for (let i = 0; i <= 50; i++) {
+        if (shinyProcessAlreadyDead) {
+            break
+        }
+        await waitFor(500)
+        try {
+            const res = await http.head(url, {
+                timeout: 1000
+            })
+            // TODO: check that it is really shiny and not some other webserver
+            if (res.status === 200) {
+                await progressCallback({
+                    attempt: attempt,
+                    code: 'success'
+                })
+                shinyRunning = true
+                onSuccess(url)
+                return
+            }
+        } catch (e) {}
+    }
+    await progressCallback({
+        attempt: attempt,
+        code: 'notresponding'
+    })
+
+    try {
+        rShinyProcess.kill()
+    } catch (e) {}
+}
+
+let mainWindow
+let loadingSplashScreen
+let errorSplashScreen
+
+const createWindow = (shinyUrl) => {
+    mainWindow = new BrowserWindow({
+        width: 1600,
+        height: 900,
+        show: false,
+        icon: __dirname + '/src/images/icon/favicon.ico',
+        autoHideMenuBar: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true
+        }
+    })
+
+    mainWindow.loadURL(shinyUrl)
+    mainWindow.on('closed', () => {
+        mainWindow = null
+    })
+}
+
+const splashScreenOptions = {
+    width: 1600,
+    height: 900,
+    backgroundColor: backgroundColor
+}
+
+const createSplashScreen = (filename) => {
+    let splashScreen = new BrowserWindow(splashScreenOptions)
+    splashScreen.loadURL(`file://${__dirname}/${filename}.html`)
+    splashScreen.on('closed', () => {
+        splashScreen = null
+    })
+    return splashScreen
+}
+
+const createLoadingSplashScreen = () => {
+    loadingSplashScreen = createSplashScreen('loading')
+}
+
+const createErrorScreen = () => {
+    errorSplashScreen = createSplashScreen('failed')
+}
+
+app.on('ready', async () => {    
+    session.defaultSession.webRequest.onHeadersReceived((_, callback) => {
+        callback({
+            responseHeaders: `
+              default-src 'none';
+              script-src 'self';
+              img-src 'self' data:;
+              style-src 'self';
+              font-src 'self';
+              `
+        })
+    })
+    
+    session.defaultSession.setPermissionRequestHandler((_1, _2, callback) => {
+        callback(false)
+    })
+
+    createLoadingSplashScreen()
+
+    const emitSpashEvent = async (event, data) => {
+        try {
+            await loadingSplashScreen.webContents.send(event, data)
+        } catch (e) {}
+    }
+    
+    const progressCallback = async (event) => {
+        await emitSpashEvent('start-webserver-event', event)
+    }
+
+    const onErrorLater = async () => {
+        if (!mainWindow) { // fired when we quit the app
+            return
+        }
+        createErrorScreen()
+        await errorSplashScreen.show()
+        mainWindow.destroy()
+    }
+
+    const onErrorStartup = async () => {
+        await waitFor(10000) // TODO: hack, only emit if the loading screen is ready
+        await emitSpashEvent('failed')
+    }
+
+    try {
+        await tryStartWebserver(0, progressCallback, onErrorStartup, onErrorLater, (url) => {
+            createWindow(url)
+            loadingSplashScreen.destroy()
+            loadingSplashScreen = null
+            mainWindow.show()
+        })
+    } catch (e) {
+        await emitSpashEvent('failed')
+    }
+})
+
+app.on('window-all-closed', () => {    
+    shutdown = true
+    app.quit()    
+    try {
+        rShinyProcess.kill();
+        child_pids.forEach((pid) => {
+          try {
+            process.kill(pid, "SIGTERM");
+          } catch (e) {}
+        });
+      } catch (e) {}
+})

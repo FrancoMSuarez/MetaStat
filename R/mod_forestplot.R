@@ -38,10 +38,19 @@ mod_forestplot_server <- function(id, model){
 
     output$dynamic_plot_ui <- renderUI({
       req(model())
+
 #browser()
+
+      is_subgroup <- !is.null(model()$byvar)
+      num_subgroups <- if (is_subgroup) length(unique(model()$byvar)) else 0
+      extra_lines <- if (is_subgroup) num_subgroups * 4 else 0
       total_studies <- length(model()$studlab)
+
+      plot_height <- max(700, 20 + (total_studies + extra_lines) * 17)
+
+
       # Calcular la altura del gráfico basada en la cantidad de estudios
-      plot_height <- max(700, 10 + total_studies * 17)  # Ajustar valores si es necesario
+      #plot_height <- max(700, 10 + total_studies * 17)  # Ajustar valores si es necesario
       div(
         style = "flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; padding: 2px;",
         div(
