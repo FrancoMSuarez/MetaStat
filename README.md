@@ -24,5 +24,5 @@ pak::pkg_install("FrancoMSuarez/MetaStat")
 You can launch the application by running:
 
 ``` r
-MetaStats::run_app()
+MetaStat::run_app()
 ```
