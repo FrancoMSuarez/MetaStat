@@ -21,7 +21,7 @@ of continuous and discrete outcomes—no R programming experience required.
 ## How to use
 
 **Option 1 — Online (no installation):**
-<https://francosuarez.shinyapps.io/metastats/>
+<https://francosuarez.shinyapps.io/metastat/>
 
 **Option 2 — Install in R:**
 
@@ -44,6 +44,12 @@ MetaStat::run_app()
 ### Forest plot
 
 ![](paper/figures/fig_plots.png)
+
+## Citation
+
+If you use MetaStat in your research, please cite:
+
+Suarez F, Bruno C (2026). *MetaStat: A Shiny Application for Meta-Analysis*. Zenodo. https://doi.org/10.5281/zenodo.20310379
 
 ## License
 
