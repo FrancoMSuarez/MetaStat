@@ -70,16 +70,17 @@ save_baujat_plot_png <- function(model, file_name, show_studlab = TRUE) {
 }
 
 #################################################################################
-# # ANDA
+# # # ANDA
 # save_forest_plot_pdf <- function(model, file_name, studies_per_page = 25) {
 #   message("Guardando PDF en: ", file_name)
-# browser()
+# #browser()
 #   # Total de estudios y páginas necesarias
 #   #total_studies <- length(model$studlab)
 #   #total_pages <- ceiling(total_studies / studies_per_page)
+#
 #   is_subgroup <- !is.null(model$byvar)
 #   num_subgroups <- if (is_subgroup) length(unique(model$byvar)) else 0
-#   extra_lines <- if (is_subgroup) num_subgroups * 4 else 0
+#   extra_lines <- if (is_subgroup) num_subgroups * 3 else 0
 #   total_studies <- length(model$studlab)
 #
 #   plot_height <- max(25, 20 + (total_studies + extra_lines) * 1)
@@ -127,60 +128,177 @@ save_baujat_plot_png <- function(model, file_name, show_studlab = TRUE) {
 #   message("PDF guardado exitosamente en: ", file_name)
 # }
 
-#################################################333##
 
-save_forest_plot_pdf <- function(model, file_name) {
-  library(magick)
+# save_forest_plot_pdf <- function(model, file_name,
+#                                  studies_per_inch = 4,
+#                                  min_height = 10,
+#                                  max_height = 70,
+#                                  width_inches = 12) {
+#
+#   extra <- if (!is.null(model$byvar))
+#     length(unique(model$byvar)) * 3 else 0
+#
+#   total_rows <- length(model$studlab) + extra
+#
+#   height_inches <- min(
+#     max(total_rows / studies_per_inch, min_height),
+#     max_height
+#   )
+#
+#   pdf(file_name,
+#       width = width_inches,
+#       height = height_inches)
+#
+#   # set_forest_par()
+#   generate_forest_plot(model)
+#
+#   dev.off()
+# }
 
-  message("Guardando PDF en: ", file_name)
+# save_forest_plot_pdf  <- function(model,
+#                                   file_name,
+#                                   studies_per_page = 15) {
+#
+#   total <- length(model$studlab)
+#
+#   pdf(file_name, width = 11.69, height = 8.27)
+#
+#   for (i in seq(1, total, by = studies_per_page)) {
+#
+#
+#     idx <- i:min(i + studies_per_page - 1, total)
+#
+#     last_page <- max(idx) == total
+#     browser()
+#
+#     sub_model <- model
+#     sub_model$TE       <- model$TE[idx]
+#     sub_model$seTE     <- model$seTE[idx]
+#     sub_model$n.e <- model$n.e[idx]
+#     sub_model$mean.e <- model$mean.e[idx]
+#     sub_model$sd.e <- model$sd.e[idx]
+#
+#     sub_model$n.c <- model$n.c[idx]
+#     sub_model$mean.c <- model$mean.c[idx]
+#     sub_model$sd.c <- model$sd.c[idx]
+#
+#     sub_model$studlab <- model$studlab[idx]
+#
+#     if (!is.null(model$byvar))
+#       sub_model$byvar <- model$byvar[idx]
+#
+#
+#
+#     meta::forest(
+#       sub_model,
+#       comb.fixed = FALSE,
+#       comb.random = FALSE,   # 🔥 apaga totales repetidos
+#       print.tau2 = FALSE,
+#       print.I2 = FALSE
+#     )
+#   }
+#
+#   dev.off()
+# }
 
-  # Calcular tamaño dinámico del gráfico
-  is_subgroup <- !is.null(model$byvar)
-  num_subgroups <- if (is_subgroup) length(unique(model$byvar)) else 0
-  extra_lines <- if (is_subgroup) num_subgroups * 4 else 0
-  total_studies <- length(model$studlab)
-  plot_height <- max(25, 20 + (total_studies + extra_lines) * 1)
 
-  # Guardar el plot como imagen PNG grande
-  tmp_png <- tempfile(fileext = ".png")
-  png(tmp_png, width = 3000, height = plot_height * 50, res = 300) # ancho fijo, alto dinámico
-  generate_forest_plot(model)
-  dev.off()
 
-  # Leer la imagen con magick
-  img <- image_read(tmp_png)
+save_forest_plot_pdf <- function(model,
+                                 file_name,
+                                 rows_per_page = 18) {
 
-  # Tamaño A4 en píxeles a 300 dpi
-  a4_width <- 3000
-  a4_height <- 3508
+  while (dev.cur() > 1) dev.off()
 
-  info <- image_info(img)
-  w <- info$width
-  h <- info$height
+  # total de estudios
+  k <- length(model$studlab)
 
-  # Calcular cortes
-  cols <- ceiling(w / a4_width)
-  rows <- ceiling(h / a4_height)
+  # filas extras por subgrupo (meta mete títulos + espacios)
+  extra <- if (!is.null(model$byvar)) {
+    length(unique(model$byvar)) * 2
+  } else 0
 
-  partes <- list()
-  for (r in 0:(rows-1)) {
-    for (c in 0:(cols-1)) {
-      x_offset <- c * a4_width
-      y_offset <- r * a4_height
-      recorte <- image_crop(
-        img,
-        paste0(a4_width, "x", a4_height, "+", x_offset, "+", y_offset)
-      )
-      partes <- c(partes, list(recorte))
-    }
+  total_rows <- k + extra
+
+  pages <- split(seq_len(k), ceiling(seq_len(k) / rows_per_page))
+
+  pdf(file_name, width = 11.69, height = 8.27)
+
+  for (p in seq_along(pages)) {
+
+    rows_i <- pages[[p]]
+    last_page <- p == length(pages)
+
+    meta::forest(
+      model,
+      rows = rows_i,
+      bylab = "",
+      comb.fixed  = last_page,
+      comb.random = FALSE,
+      print.I2    = last_page,
+      print.tau2  = FALSE
+    )
   }
 
-  # Guardar como PDF
-  pdf_final <- image_join(partes)
-  image_write(pdf_final, path = file_name, format = "pdf")
-
-  message("PDF recortado y guardado exitosamente en: ", file_name)
+  dev.off()
 }
+
+
+
+
+#################################################333##
+#
+# save_forest_plot_pdf <- function(model, file_name) {
+#   library(magick)
+#
+#   message("Guardando PDF en: ", file_name)
+#
+#   # Calcular tamaño dinámico del gráfico
+#   is_subgroup <- !is.null(model$byvar)
+#   num_subgroups <- if (is_subgroup) length(unique(model$byvar)) else 0
+#   extra_lines <- if (is_subgroup) num_subgroups * 4 else 0
+#   total_studies <- length(model$studlab)
+#   plot_height <- max(25, 20 + (total_studies + extra_lines) * 1)
+#
+#   # Guardar el plot como imagen PNG grande
+#   tmp_png <- tempfile(fileext = ".png")
+#   png(tmp_png, width = 3000, height = plot_height * 50, res = 300) # ancho fijo, alto dinámico
+#   generate_forest_plot(model)
+#   dev.off()
+#
+#   # Leer la imagen con magick
+#   img <- image_read(tmp_png)
+#
+#   # Tamaño A4 en píxeles a 300 dpi
+#   a4_width <- 3000
+#   a4_height <- 3508
+#
+#   info <- image_info(img)
+#   w <- info$width
+#   h <- info$height
+#
+#   # Calcular cortes
+#   cols <- ceiling(w / a4_width)
+#   rows <- ceiling(h / a4_height)
+#
+#   partes <- list()
+#   for (r in 0:(rows-1)) {
+#     for (c in 0:(cols-1)) {
+#       x_offset <- c * a4_width
+#       y_offset <- r * a4_height
+#       recorte <- image_crop(
+#         img,
+#         paste0(a4_width, "x", a4_height, "+", x_offset, "+", y_offset)
+#       )
+#       partes <- c(partes, list(recorte))
+#     }
+#   }
+#
+#   # Guardar como PDF
+#   pdf_final <- image_join(partes)
+#   image_write(pdf_final, path = file_name, format = "pdf")
+#
+#   message("PDF recortado y guardado exitosamente en: ", file_name)
+# }
 
 
 ##### 28/5
@@ -194,5 +312,5 @@ generate_forest_plot <- function(model) {
 
 
 
-
+# spacing
 
