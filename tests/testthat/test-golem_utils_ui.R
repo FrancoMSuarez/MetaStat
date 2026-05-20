@@ -84,6 +84,7 @@ test_that("Test undisplay works", {
     as.character(a),
     '<p src="plop">pouet</p>'
   )
+
   a_undisplay <- undisplay(a)
   expect_s3_class(a_undisplay, "shiny.tag")
   expect_equal(
@@ -93,15 +94,29 @@ test_that("Test undisplay works", {
 
   b <- shiny::actionButton("go_filter", "go")
   expect_s3_class(b, "shiny.tag")
+
   expect_equal(
     as.character(b),
-    '<button id="go_filter" type="button" class="btn btn-default action-button">go</button>'
+    paste0(
+      '<button id="go_filter" type="button" ',
+      'class="btn btn-default action-button">',
+      '<span class="action-label">go</span>',
+      '</button>'
+    )
   )
+
   b_undisplay <- undisplay(b)
-  expect_s3_class(b, "shiny.tag")
+  expect_s3_class(b_undisplay, "shiny.tag")
+
   expect_equal(
     as.character(b_undisplay),
-    '<button id="go_filter" type="button" class="btn btn-default action-button" style="display: none;">go</button>'
+    paste0(
+      '<button id="go_filter" type="button" ',
+      'class="btn btn-default action-button" ',
+      'style="display: none;">',
+      '<span class="action-label">go</span>',
+      '</button>'
+    )
   )
 
   c <- shiny::tags$p(src = "plop", style = "some_style", "pouet")
@@ -110,6 +125,7 @@ test_that("Test undisplay works", {
     as.character(c),
     '<p src="plop" style="some_style">pouet</p>'
   )
+
   c_undisplay <- undisplay(c)
   expect_s3_class(c_undisplay, "shiny.tag")
   expect_equal(
@@ -119,14 +135,23 @@ test_that("Test undisplay works", {
 })
 
 test_that("Test display works", {
-  a_undisplay <- shiny::tags$p(src = "plop", "pouet", style = "display: none;")
+  a_undisplay <- shiny::tags$p(
+    src = "plop",
+    "pouet",
+    style = "display: none;"
+  )
+
   expect_s3_class(a_undisplay, "shiny.tag")
+
   expect_equal(
     as.character(a_undisplay),
     '<p src="plop" style="display: none;">pouet</p>'
   )
+
   a_display <- display(a_undisplay)
+
   expect_s3_class(a_display, "shiny.tag")
+
   expect_equal(
     as.character(a_display),
     '<p src="plop" style="">pouet</p>'
@@ -135,6 +160,7 @@ test_that("Test display works", {
 
 test_that("Test jq_hide works", {
   expect_s3_class(jq_hide("golem"), "shiny.tag")
+
   expect_equal(
     as.character(jq_hide("golem")),
     "<script>$('#golem').hide()</script>"
@@ -143,6 +169,7 @@ test_that("Test jq_hide works", {
 
 test_that("Test rep_br works", {
   expect_s3_class(rep_br(5), "html")
+
   expect_equal(
     as.character(rep_br(5)),
     "<br/> <br/> <br/> <br/> <br/>"
@@ -151,6 +178,7 @@ test_that("Test rep_br works", {
 
 test_that("Test enurl works", {
   expect_s3_class(enurl("https://www.thinkr.fr", "ThinkR"), "shiny.tag")
+
   expect_equal(
     as.character(enurl("https://www.thinkr.fr", "ThinkR")),
     '<a href="https://www.thinkr.fr">ThinkR</a>'
@@ -178,44 +206,58 @@ test_that("Test columns wrappers works", {
 })
 
 test_that("Test make_action_button works", {
-  tmp_tag <- a(href = "#", "My super link", style = "color: lightblue;")
+  tmp_tag <- a(
+    href = "#",
+    "My super link",
+    style = "color: lightblue;"
+  )
+
   button <- make_action_button(
     tmp_tag,
     inputId = "mylink"
   )
+
   expect_s3_class(button, "shiny.tag")
+
   expect_equal(
     as.character(button),
     '<a href="#" style="color: lightblue;" id="mylink" class="action-button">My super link</a>'
   )
+
   expect_error(
     button_2 <- make_action_button(
       unclass(tmp_tag),
       inputId = "mylink_2"
     )
   )
+
   expect_error(
     button_3 <- make_action_button(
       button,
       inputId = "mylink_3"
     )
   )
+
   expect_error(
     button_4 <- make_action_button(
       tmp_tag,
       inputId = NULL
     )
   )
+
   tmp_tag_2 <- tmp_tag
   tmp_tag_2$attribs$id <- "id_already_present"
+
   expect_warning(
     button_5 <- make_action_button(
       tmp_tag_2,
       inputId = "mylink_5"
     )
   )
+
   tmp_tag_3 <- tmp_tag
   tmp_tag_3$attribs$class <- "class_already_present"
+
   button_6 <- make_action_button(
     tmp_tag_3,
     inputId = "someID"

@@ -1,4 +1,4 @@
-# MetaStat <img src="inst/app/www/Imagen1.png" align="right" height="100"/>
+# MetaStat <img src="inst/app/www/Imagen1.png" align="right" height="150"/>
 
 <!-- badges -->
 [![R-CMD-check](https://github.com/FrancoMSuarez/MetaStat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/FrancoMSuarez/MetaStat/actions)
