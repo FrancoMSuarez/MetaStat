@@ -1,4 +1,4 @@
-# MetaStat <img src="inst/app/www/Imagen1.png" align="right" height="120"/>
+# MetaStat <img src="inst/app/www/Imagen1.png" align="right" height="100"/>
 
 <!-- badges -->
 [![R-CMD-check](https://github.com/FrancoMSuarez/MetaStat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/FrancoMSuarez/MetaStat/actions)
@@ -29,10 +29,6 @@ of continuous and discrete outcomes—no R programming experience required.
 pak::pkg_install("FrancoMSuarez/MetaStat")
 MetaStat::run_app()
 ```
-
-**Option 3 — Windows desktop app:**
-Download the standalone `.exe` from the [Releases](https://github.com/FrancoMSuarez/MetaStat/releases) page.
-
 ## Screenshots
 
 <!-- Add screenshots here once captured — see CONTRIBUTING for guidance -->
