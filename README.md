@@ -1,28 +1,50 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+# MetaStat <img src="inst/app/www/Imagen1.png" align="right" height="120"/>
 
-# `MetaStat`
+<!-- badges -->
+[![R-CMD-check](https://github.com/FrancoMSuarez/MetaStat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/FrancoMSuarez/MetaStat/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<!-- badges: start -->
+**MetaStat** is a free, open-source Shiny application for performing meta-analyses
+of continuous and discrete outcomes—no R programming experience required.
 
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+## Features
 
-<!-- badges: end -->
+- **10 meta-analysis models**: ratio of means, mean difference, standardised mean
+  difference, correlations, single mean (continuous); odds ratio, risk ratio, risk
+  difference, arcsine transformation, single proportion (discrete).
+- Fixed-effect and random-effects estimation with multiple heterogeneity estimators.
+- Subgroup analysis and meta-regression.
+- Downloadable forest plots, funnel plots, and Baujat plots.
+- Structured results tables (up to 9 tables per analysis).
 
-## Installation
+## How to use
 
-You can install the development version of `MetaStats` like so:
+**Option 1 — Online (no installation):**
+<https://francosuarez.shinyapps.io/metastats/>
 
-``` r
-# install.packages('pak')
+**Option 2 — Install in R:**
+
+```r
+# install.packages("pak")
 pak::pkg_install("FrancoMSuarez/MetaStat")
-```
-
-## Run
-
-You can launch the application by running:
-
-``` r
 MetaStat::run_app()
 ```
+
+**Option 3 — Windows desktop app:**
+Download the standalone `.exe` from the [Releases](https://github.com/FrancoMSuarez/MetaStat/releases) page.
+
+## Screenshots
+
+<!-- Add screenshots here once captured — see CONTRIBUTING for guidance -->
+
+## Citation
+
+If you use MetaStat in your research, please cite:
+
+> Suarez F., Bruno C. (2026). MetaStat: An R Shiny Application for
+> Accessible and Reproducible Meta-Analysis. *Journal of Open Source Software*.
+
+## License
+
+MIT © Franco Suarez, Cecilia Bruno
