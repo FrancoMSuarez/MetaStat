@@ -11,10 +11,7 @@ tags:
 authors:
   - name: Franco Suarez
     orcid: 0000-0003-3179-2701
-    affiliation: 1
-  - name: Sebastian Filipigh
-    orcid: 0009-0008-6573-6840
-    affiliation: 1
+    affiliation: "1, 2"
   - name: Cecilia Bruno
     orcid: 0000-0002-3674-7128
     affiliation: "1, 2"
@@ -25,188 +22,256 @@ affiliations:
     index: 2
 date: 20 May 2026
 bibliography: paper.bib
-repository-code: 'https://github.com/FrancoMSuarez/MetaStat'
-archive-doi: '10.5281/zenodo.20310380'
 ---
 
 # Summary
 
-Systematic reviews and meta-analyses are cornerstones of evidence-based science. A
-systematic review synthesizes evidence from a research question using comprehensive and
-reproducible methods to search, identify, select, evaluate, and extract data from
-published primary studies [@zhai2024]. Meta-analysis is the statistical technique that
-combines quantitative results from those studies to produce a pooled effect estimate with
-a confidence interval, increasing statistical power and resolving ambiguities that arise
-when individual studies are underpowered [@allami2021; @zhai2024].
+A systematic review (SR) synthesizes evidence from a research question using
+comprehensive and reproducible methods to search, identify, select, evaluate, and extract
+data from published primary studies. Meta-analysis is the statistical technique that
+combines quantitative results from those studies—all addressing the same research
+question—to produce a pooled effect estimate together with a confidence interval (CI)
+that reflects the weighted mean of the included primary studies and provides a measure of
+the reliability of the combined estimate [@zhai2024]. By pooling results across studies,
+meta-analyses increase statistical power, improve precision, and can answer questions that
+individual trials cannot address due to insufficient sample size. When integrated with a
+systematic review they produce high-quality evidence that informs and facilitates
+evidence-based decision-making [@allami2021].
 
-Despite their importance, meta-analyses are technically demanding. Widely used R packages
-such as `meta` [@balduzzi2019] and `metafor` [@viechtbauer2010] implement state-of-the-art
-procedures but require programming skills that constitute a barrier for practitioners
-outside computational disciplines. Commercial software such as SAS [@sas2023], STATA
-[@statacorp2015], and SPSS [@ibm2017] partially addresses usability but imposes licensing
-costs and limits reproducibility. `MetaStat` was developed to fill this gap: it is a
-free, open-source R package that wraps the analytical power of `meta` and `metafor` in
-an intuitive Shiny [@chang2024] web application, making the full meta-analysis workflow
-available without requiring any programming knowledge.
+Carrying out a meta-analysis requires proficiency in statistical software. Several
+programs support this workflow—SAS [@sas2023], R [@rcoreteam2024], STATA
+[@statacorp2015], SPSS [@ibm2017], and the Cochrane web calculator [@revman2025]—but
+researchers who need supplementary analyses such as meta-regression or publication-bias
+diagnostics must often switch between multiple tools [@tantry2021]. Within R, the
+packages `meta` [@balduzzi2019] and `metafor` [@viechtbauer2010] provide a comprehensive
+suite of functions for meta-analysis and are widely used in research. However, neither
+package ships a graphical user interface (GUI), and applying them requires proficiency in
+R programming—a barrier for investigators who lack the time or resources to learn to
+code.
 
-`MetaStat` supports both continuous and discrete outcomes, fixed-effect and random-effects
-models, subgroup analyses, meta-regression, and three standard diagnostic visualisations.
-It is available as a standalone Windows desktop application [@zarathucorp2025], as an
-installable R package via GitHub, and as a hosted web application at
+`MetaStat` was developed to close this gap. It combines the analytical depth of R's
+meta-analysis ecosystem with the accessibility of a Shiny [@chang2024] web application,
+allowing researchers to execute the full meta-analysis workflow—data ingestion, model
+fitting, result inspection, and diagnostic plotting—through a point-and-click interface
+that requires no programming experience. The application is freely available as an installable R package
+from GitHub, and as a hosted web application on ShinyApps.io at
 <https://francosuarez.shinyapps.io/metastats/>.
 
 # Statement of Need
 
-Evidence synthesis is increasingly required across scientific disciplines. In agricultural
-sciences, for example, meta-analyses are used to evaluate treatment effects across
-experiments conducted in diverse environments [@allami2021]. Yet many researchers in these
-fields lack formal training in statistical computing and face practical barriers when
-attempting to use command-line tools.
+Evidence synthesis is a growing methodological requirement across scientific
+disciplines—from clinical medicine and public health to agricultural sciences, ecology,
+and social sciences. The increasing volume of primary studies makes it both possible and
+necessary to combine results quantitatively, yet the community of potential users of
+meta-analysis is far larger than the community of researchers comfortable with R
+programming.
 
-Existing meta-analysis software occupies two extremes: powerful but code-intensive
-packages (R's `meta` and `metafor`) or limited web calculators such as RevMan
-[@revman2025] that do not support meta-regression or flexible heterogeneity estimation.
-Some authors have noted that performing auxiliary analyses—meta-regression, subgroup
-comparisons, publication bias diagnostics—often requires switching between multiple tools
-[@tantry2021], disrupting workflow and reproducibility.
+Existing options present a clear trade-off. Command-line tools such as `meta` and
+`metafor` are analytically complete but require programming expertise. GUI-based
+commercial options (SAS, STATA, SPSS) impose licensing costs that exclude many
+institutions, particularly in the Global South. Free alternatives such as RevMan
+[@revman2025] focus on clinical trial data and offer limited support for meta-regression
+and heterogeneity estimation. As a consequence, many researchers either avoid
+meta-analysis entirely or conduct partial analyses with whichever tool is most
+familiar—compromising both rigour and reproducibility.
 
-`MetaStat` addresses all of these limitations in a single, integrated application. By
-building on the `golem` framework [@fay2023], `MetaStat` is itself an R package, meaning
-its source code is versioned, testable, and installable with standard R tooling. The
-Shiny interface hides implementation details without sacrificing analytical depth,
-allowing the same researcher who cannot write R code to access fixed/random effects
-estimation, several heterogeneity estimators, subgroup contrasts, and meta-regression
-from a single browser tab. This combination of accessibility and analytical completeness
-is, to the authors' knowledge, unique among freely available meta-analysis tools.
+`MetaStat` addresses all of these limitations at once. It is free and open-source,
+integrates the full meta-analysis workflow in a single application, and requires no
+software installation when used through the hosted version. Because it is built as an R
+package using the `golem` framework [@fay2023], the underlying analysis code is
+versioned, testable, and auditable by anyone with R knowledge—supporting reproducibility
+even when the end user interacts only with the GUI. This combination of accessibility,
+analytical completeness, and open-source transparency is, to the authors' knowledge,
+unique among freely available meta-analysis tools.
+
+The application is particularly relevant for the Latin American research context, where
+large multi-environment agricultural experiments generate datasets well-suited to
+meta-analysis but where R programming skills are less widely distributed among
+practitioners. MetaStat was developed at the Department of Statistics and Biometry of
+the Faculty of Agricultural Sciences, Universidad Nacional de Córdoba, Argentina, with
+this user base directly in mind.
 
 # Implementation
 
 `MetaStat` is structured as an R package using the `golem` framework [@fay2023], which
-enforces a modular Shiny architecture and makes the application installable, testable,
-and deployable from a single codebase. Each analytical model (e.g., odds ratio, mean
-difference, correlation) is implemented as an independent Shiny module, enabling clean
-separation of concerns and straightforward extension. The user interface is built with
-`bslib` [@sievert2024] using the Minty Bootswatch theme and a `page_navbar` layout with
-a top navigation bar whose panels are revealed progressively as the user advances through
-the workflow—preventing navigation errors before data are loaded.
+enforces a modular Shiny architecture: each analytical model is implemented as an
+independent Shiny module, ensuring clean separation of concerns and making it
+straightforward to add new models in future versions. The framework also provides a
+standardised project layout with configuration management (`config`), internal utility
+functions (`fct_utils.R`), and deployment targets for both web and desktop platforms.
 
-Core meta-analytic computations are delegated entirely to the `meta` package
-[@balduzzi2019], which itself calls `metafor` [@viechtbauer2010] for heterogeneity
-estimation and meta-regression. `MetaStat` therefore inherits the full suite of
-estimators available in those packages (DerSimonian–Laird, REML, ML, Hedges, and
-others) without reimplementing any statistical logic. Results tables are rendered with
-`DT` [@xie2023] for interactive sorting and filtering, and `shinyjs` [@attali2021]
-manages dynamic UI visibility. All plots are generated with base R graphics via
-`meta`'s `forest()`, `funnel()`, and `baujat()` functions, with `MetaStat` adding
-automatic height scaling so that forest plots remain legible regardless of the number
-of studies.
+The user interface is constructed with `bslib` [@sievert2024] using a `page_navbar`
+layout and the Minty Bootswatch theme. Navigation tabs for model fitting, plots, and
+meta-regression are programmatically hidden until data have been successfully loaded,
+preventing the navigation errors that arise when users attempt to run analyses before
+uploading their dataset. Dynamic UI visibility throughout the application is managed by
+`shinyjs` [@attali2021].
 
-The dependency graph is kept intentionally lean: `shiny`, `bslib`, `golem`, `meta`,
-`readxl`, `DT`, `dplyr`, and `shinyjs`. This minimises installation friction and
-reduces the risk of future breaking changes.
+All statistical computations are delegated to the `meta` package [@balduzzi2019], which
+in turn calls `metafor` [@viechtbauer2010] for mixed-effects and meta-regression models.
+`MetaStat` does not reimplement any statistical logic; it acts as an interface layer that
+collects user inputs, constructs the appropriate `meta` function call, and formats the
+resulting objects for display. This design ensures that analytical correctness is
+inherited directly from well-validated, peer-reviewed packages, and that future
+improvements to those packages are automatically available to `MetaStat` users.
+
+Results tables are rendered as interactive `DT` [@xie2023] widgets, allowing users to
+sort, filter, and search within results without leaving the application. All plots are
+produced by `meta`'s `forest()`, `funnel()`, and `baujat()` functions via base R
+graphics. Forest plot height is computed dynamically in the utility function
+`save_forest_plot_png()` based on the number of studies and the number of subgroups,
+ensuring legibility regardless of dataset size.
+
+The standalone Windows application is built using the Electron-based template provided
+by Zarathucorp [@zarathucorp2025], which bundles R, the application package, and all
+dependencies into a single self-contained executable. This deployment target requires
+no prior R installation, extending the reach of the application to users who work in
+environments where installing R is not straightforward.
 
 # Functionality
 
-## Workflow Overview
+## Workflow and Navigation
 
-The application guides the user through a linear workflow enforced by the navigation
-bar. Panels for models, plots, and meta-regression are hidden until data have been
-successfully loaded, preventing common usage errors.
+Upon launching the application, the user is presented with the home screen
+(\autoref{fig:home}), which displays the MetaStat logo and two buttons for selecting the
+outcome type: *Continuous Data* or *Discrete Data*. The choice determines which set of
+models is available throughout the session. The top navigation bar becomes fully
+populated only after data are successfully loaded, guiding the user through the analysis
+in a logical sequence.
 
-![MetaStat home screen. Users select the outcome type (continuous or discrete) to begin
-the workflow.\label{fig:home}](figures/fig_home.png){ width=90% }
+![MetaStat home screen. The user selects the type of outcome variable to begin the
+session.\label{fig:home}](figures/fig_home.png){ width=90% }
 
 ## Data Input
 
-After selecting the outcome type, the user uploads a dataset in `.csv`, `.xlsx`, or
-`.txt` format. Configurable options cover column separators (comma, semicolon, tab),
-decimal characters (period or comma), and the presence of a header row. The loaded
-dataset is rendered in an interactive `DT` table for immediate visual verification
-(\autoref{fig:data}).
+After selecting an outcome type, the user navigates to the *Data* tab (\autoref{fig:data}).
+`MetaStat` accepts tabular datasets in three formats: `.csv`, `.xlsx` (processed with
+`readxl`), and `.txt`. The sidebar offers configurable options for column separator
+(comma, semicolon, or tab), decimal character (period or comma), and the presence of a
+header row. Automatic type coercion is applied to numeric columns detected from the
+decimal separator setting. Once loaded, the complete dataset is displayed in a `DT`
+interactive table, allowing the user to verify that columns and values were parsed
+correctly before proceeding.
 
-![Data loading panel. The sidebar contains file and format options; the main area shows
-an interactive preview of the uploaded dataset.\label{fig:data}](figures/fig_data.png){ width=90% }
+![Data loading panel. Format and separator options appear in the sidebar; the main panel
+shows an interactive preview of the uploaded dataset.\label{fig:data}](figures/fig_data.png){ width=90% }
 
 ## Meta-Analysis Models
 
-`MetaStat` implements ten meta-analysis models, divided by outcome type:
+`MetaStat` implements ten meta-analysis models, grouped by outcome type and implemented
+in dedicated Shiny modules:
 
-**Continuous outcomes:** ratio of means, correlations, mean difference, standardised
-mean difference, single mean.
+**Continuous outcomes** (`mod_cociente_medias`, `mod_correlaciones`, `mod_difdemedias`,
+`mod_dm_estandar`, `mod_medias`):
 
-**Discrete outcomes:** odds ratio, arcsine transformation (Freeman–Tukey), risk
-difference, single proportion, risk ratio.
+- Ratio of means
+- Correlations
+- Mean difference
+- Standardised mean difference
+- Single mean
 
-After selecting a model, the user maps dataset columns to the required parameters via
-dropdown menus. Both fixed-effect and random-effects estimation are available, along
-with optional subgroup analysis (\autoref{fig:model}). Several heterogeneity estimators
-can be selected (DerSimonian–Laird, REML, ML, Hedges, and others, depending on the model).
+**Discrete outcomes** (`mod_chance`, `mod_Arcoseno`, `mod_dif_risk`, `mod_proporcion`,
+`mod_risk_rel`):
 
-![Model configuration and results panel showing parameter dropdowns (left sidebar) and
-the nine-table results output.\label{fig:model}](figures/fig_model.png){ width=90% }
+- Odds ratio
+- Arcsine transformation (Freeman–Tukey)
+- Risk difference
+- Single proportion
+- Risk ratio
+
+Once a model tab is selected, the sidebar displays dropdown menus populated
+automatically from the column names of the loaded dataset (\autoref{fig:model}). The
+user maps each model parameter to the corresponding dataset column, selects fixed-effect
+or random-effects estimation, and optionally designates a subgroup variable. Multiple
+heterogeneity estimators are available (DerSimonian–Laird, REML, ML, Hedges, and others,
+depending on the model). The model is fitted when the user clicks the *Run Model* button.
+
+![Model configuration panel. Dropdown menus in the sidebar are populated from the
+dataset column names. Results appear as interactive tables once the model is
+fitted.\label{fig:model}](figures/fig_model.png){ width=90% }
 
 ## Results Tables
 
-Fitted models produce up to nine structured tables:
+After fitting, `MetaStat` displays up to nine structured results tables:
 
-1. Study-level estimates, confidence intervals, z-statistics, p-values, and weights
-2. Count of combined and individual studies
-3. Overall effect estimate, confidence interval, and p-value
-4. Heterogeneity quantification (τ², H, I²)
-5. Test of heterogeneity
+1. Summary of individual study estimates: point estimate, confidence interval,
+   z-statistic, p-value, and weight
+2. Number of combined and individual studies
+3. Overall pooled effect estimate, confidence interval, and p-value
+4. Heterogeneity quantification: τ², H, and I²
+5. Test of heterogeneity: Q-statistic and p-value
 6. Heterogeneity estimation method
-7. Subgroup effect estimates, confidence intervals, and p-values *(if applicable)*
-8. Within-subgroup heterogeneity *(if applicable)*
-9. Test for differences between subgroups *(if applicable)*
+7. Per-subgroup effect estimates, confidence intervals, and p-values *(subgroup models)*
+8. Per-subgroup heterogeneity statistics *(subgroup models)*
+9. Test for differences between subgroups *(subgroup models)*
+
+All tables are rendered as interactive `DT` widgets and support sorting and filtering.
 
 ## Visualisation
 
-Three diagnostic plots are available as dedicated tabs and can each be downloaded as
-`.png` files (\autoref{fig:plots}):
+Three diagnostic plots are generated from the fitted model and are available on
+dedicated tabs (\autoref{fig:plots}). Each plot can be downloaded as a `.png` file
+(forest plots can additionally be exported as `.pdf`):
 
-- **Forest plot** — displays individual study estimates with confidence intervals and
-  the pooled effect diamond. Plot height scales automatically with the number of
-  studies (and the number of subgroups when applicable) to ensure readability.
-- **Funnel plot** — plots study precision against effect size to support visual
-  assessment of publication bias.
-- **Baujat plot** — identifies studies that contribute disproportionately to overall
-  heterogeneity, aiding sensitivity analysis decisions.
+- **Forest plot** — displays individual study effect estimates with confidence intervals,
+  and the pooled effect represented as a diamond. Plot height is computed dynamically
+  based on the number of studies (and subgroups) to maintain legibility for both small
+  and large datasets.
+- **Funnel plot** — plots study-level precision (standard error) against the effect
+  estimate, supporting visual assessment of publication bias.
+- **Baujat plot** — plots each study's contribution to overall heterogeneity against its
+  influence on the pooled estimate, facilitating identification of influential or
+  outlying studies for sensitivity analysis.
 
-![Visualisation tab showing a forest plot (top) and funnel/Baujat plots (bottom) from
-a fitted random-effects model.\label{fig:plots}](figures/fig_plots.png){ width=90% }
+![Visualisation tabs. The forest plot (top) shows individual and pooled estimates; the
+funnel and Baujat plots (bottom) support publication-bias and influence
+assessment.\label{fig:plots}](figures/fig_plots.png){ width=90% }
 
 ## Meta-Regression
 
-The meta-regression tab (\autoref{fig:metareg}) extends the fitted model by adding a
-moderator variable selected from the dataset columns. `MetaStat` returns a full
-diagnostic table including log-likelihood, deviance, AIC, BIC, AICc, heterogeneity
-quantification, residual heterogeneity test, and the meta-regression coefficients with
-standard errors and p-values.
+The *Meta-regression* tab (\autoref{fig:metareg}) allows the user to extend the fitted
+model by adding a continuous or categorical moderator variable selected from the dataset
+columns. `MetaStat` calls `meta::metareg()`, which fits a mixed-effects model via
+`metafor`, and returns four results tables:
 
-![Meta-regression tab showing covariate selection (left) and results tables including
-model fit statistics and regression coefficients.\label{fig:metareg}](figures/fig_metareg.png){ width=90% }
+1. Model fit statistics: log-likelihood, deviance, AIC, BIC, AICc
+2. Heterogeneity quantification for the meta-regression model: τ², SE(τ²), I², H², R²
+3. Residual heterogeneity test: Q_E statistic and p-value
+4. Meta-regression coefficients: estimate, standard error, p-value, 95% CI
+
+A bubble plot is also produced, in which each study is represented by a bubble scaled
+to its weight, overlaid on the fitted regression line. This visualisation aids
+interpretation of the relationship between the moderator and the effect size across
+studies.
+
+![Meta-regression tab. The covariate is selected in the sidebar; four results tables
+and a bubble plot are displayed in the main panel.\label{fig:metareg}](figures/fig_metareg.png){ width=90% }
 
 # Usage
 
-Install from GitHub and launch with two lines:
+`MetaStat` can be installed from GitHub and launched with two lines of R code:
 
 ```r
 # install.packages("pak")
 pak::pkg_install("FrancoMSuarez/MetaStat")
-
 MetaStat::run_app()
 ```
 
-No installation is required to use the hosted version:
+No installation is required to use the hosted version, which is accessible from any
+modern web browser:
+
 <https://francosuarez.shinyapps.io/metastats/>
 
-A standalone Windows executable (built with Electron via the template by
-@zarathucorp2025) is available from the GitHub releases page for users who prefer a
-desktop application without an R installation.
+
 
 # Acknowledgements
 
 The authors thank the R community and the developers of the `meta`, `metafor`, `shiny`,
 and `golem` packages, whose work forms the analytical and structural foundation of
-`MetaStat`. Development was carried out at the Estadística y Biometría department of the
-Facultad de Ciencias Agropecuarias, Universidad Nacional de Córdoba, Argentina.
+`MetaStat`. This work was carried out at the Estadística y Biometría department of the
+Facultad de Ciencias Agropecuarias, Universidad Nacional de Córdoba, and the Grupo
+Vinculado Unidad de Fitopatología y Modelización Agrícola, INTA-CONICET, Córdoba,
+Argentina.
+
+# References
+
