@@ -35,13 +35,6 @@ MetaStat::run_app()
 
 <!-- Add screenshots here once captured — see CONTRIBUTING for guidance -->
 
-## Citation
-
-If you use MetaStat in your research, please cite:
-
-> Suarez F., Bruno C. (2026). MetaStat: An R Shiny Application for
-> Accessible and Reproducible Meta-Analysis. *Journal of Open Source Software*.
-
 ## License
 
 MIT © Franco Suarez, Cecilia Bruno

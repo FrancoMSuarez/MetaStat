@@ -6,6 +6,9 @@
 #'
 #' @noRd
 #'
+#'@importFrom grDevices dev.cur dev.off pdf
+NULL
+
 find_vars <- function(data, filter) {
   names(data)[vapply(data, filter, logical(1))]
 }

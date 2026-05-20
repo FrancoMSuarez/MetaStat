@@ -13,3 +13,7 @@ $run_dev.*
 ^\.github$
 ^\.positai$
 ^\.claude$
+^app\.R$
+^paper$
+^rsconnect$
+^utils$
