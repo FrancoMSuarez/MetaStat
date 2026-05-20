@@ -34,13 +34,16 @@ MetaStat::run_app()
 ## Screenshots
 
 ### Home
-<img src="man/figures/fig_home.png" width="800"/>
+
+![](paper/figures/fig_home.png)
 
 ### Model configuration
-<img src="man/figures/fig_model.png" width="800"/>
+
+![](paper/figures/fig_model.png)
 
 ### Forest plot
-<img src="man/figures/fig_plots.png" width="800"/>
+
+![](paper/figures/fig_plots.png)
 
 ## License
 
