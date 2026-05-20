@@ -4,14 +4,14 @@
 <!-- badges -->
 [![R-CMD-check](https://github.com/FrancoMSuarez/MetaStat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/FrancoMSuarez/MetaStat/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20310380.svg)](https://doi.org/10.5281/zenodo.20310380)
 
 **MetaStat** is a free, open-source Shiny application for performing meta-analyses
 of continuous and discrete outcomes—no R programming experience required.
 
 ## Features
 
-- **10 meta-analysis models**: ratio of means, mean difference, standardised mean
-  difference, correlations, single mean (continuous); odds ratio, risk ratio, risk
+- **10 meta-analysis models**: ratio of means, mean difference, standardized mean difference, correlations, single mean (continuous); odds ratio, risk ratio, risk
   difference, arcsine transformation, single proportion (discrete).
 - Fixed-effect and random-effects estimation with multiple heterogeneity estimators.
 - Subgroup analysis and meta-regression.
@@ -33,7 +33,14 @@ MetaStat::run_app()
 
 ## Screenshots
 
-<!-- Add screenshots here once captured — see CONTRIBUTING for guidance -->
+### Home
+<img src="man/figures/fig_home.png" width="800"/>
+
+### Model configuration
+<img src="man/figures/fig_model.png" width="800"/>
+
+### Forest plot
+<img src="man/figures/fig_plots.png" width="800"/>
 
 ## License
 

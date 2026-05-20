@@ -12,7 +12,7 @@ Authors@R:
 Description: MetaStat provides a graphical user interface for conducting
     meta-analyses of continuous and discrete outcomes. It supports
     fixed-effect and random-effects models, subgroup analysis,
-    meta-regression, and standard diagnostic visualisations (forest plot,
+    meta-regression, and standard diagnostic visualizations (forest plot,
     funnel plot, Baujat plot). Built with Shiny, it requires no
     programming experience.
 License: MIT + file LICENSE
