@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "MetaStat"
+message: "If you use this software, please cite it as below."
+type: software
+
+authors:
+  - family-names: Suarez
+    given-names: Franco
+    orcid: https://orcid.org/0000-0003-3179-2701
+
+  - family-names: Bruno
+    given-names: Cecilia
+    orcid: https://orcid.org/0000-0002-3674-7128
+
+version: 1.0.1
+doi: 10.5281/zenodo.20310379
+
+repository-code: https://github.com/FrancoMSuarez/MetaStat
+license: MIT
